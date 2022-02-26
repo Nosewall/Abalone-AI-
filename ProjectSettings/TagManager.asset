@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Board Piece
   layers:
   - Default
   - TransparentFX
@@ -49,4 +50,7 @@ TagManager:
     locked: 0
   - name: New Layer
     uniqueID: 2016236659
+    locked: 0
+  - name: Board
+    uniqueID: 2691592633
     locked: 0

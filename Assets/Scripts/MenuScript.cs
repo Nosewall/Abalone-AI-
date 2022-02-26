@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class MenuScript : MonoBehaviour
 {
+  public GameManager gameManager;
   public ConsoleManager consoleManager;
+  public BoardManager boardManager;
 
   public OptionsForLaunch options;
   GameObject menu;
@@ -32,6 +34,7 @@ public class MenuScript : MonoBehaviour
     consoleManager.sendMessageToConsole("Time Limit: " + options.getTimeLimit());
     consoleManager.sendMessageToConsole("Turn Limit: " + options.getTurnLimit());
     gameEmpty.SetActive(true);
+    gameManager.startGame();
   }
 
   public void exitGame()

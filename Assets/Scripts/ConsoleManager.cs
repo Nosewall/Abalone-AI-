@@ -40,7 +40,6 @@ public class ConsoleManager : MonoBehaviour
     Message message = new Message();
     message.text = newMessage;
     GameObject newText = Instantiate(textObject, consolePanel.transform);
-
     message.textObject = newText.GetComponent<Text>();
     message.textObject.text = message.text;
     messageList.Add(message);
