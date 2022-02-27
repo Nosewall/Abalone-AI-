@@ -8,8 +8,11 @@ public class GameManager : MonoBehaviour
   public BoardManager boardManager;
   public OptionsForLaunch gameOptions;
 
+  public static Turn currentTurn;
+
   public void startGame()
   {
+    currentTurn = Turn.BLACK;
     boardManager.referenceAllBoardTiles();
     switch (gameOptions.GetLayout())
     {
@@ -29,4 +32,21 @@ public class GameManager : MonoBehaviour
         break;
     }
   }
+
+  public static Turn getCurrentTurn()
+  {
+    return currentTurn;
+  }
+
+  public static void setCurrentTurn(Turn newTurn)
+  {
+    currentTurn = newTurn;
+  }
+
+}
+
+public enum Turn
+{
+  BLACK,
+  WHITE
 }

@@ -52,21 +52,23 @@ public class BoardManager : MonoBehaviour
 
   public void changeTileColor(GameObject tileObject, BoardColor color)
   {
-    consoleManager.sendMessageToConsole("Changing tile color of " + tileObject.name + " tile");
     Color tileColor = tileObject.GetComponent<SpriteRenderer>().color;
     switch (color)
     {
       case BoardColor.BLACK:
         tileColor = Color.black;
+        tileObject.GetComponent<SingleTileScript>().setTileColor(TileColor.BLACK);
         break;
 
       case BoardColor.WHITE:
         tileColor = Color.white;
+        tileObject.GetComponent<SingleTileScript>().setTileColor(TileColor.WHITE);
         break;
 
       case BoardColor.EMPTY:
         tileColor = Color.white;
         tileColor.a = .4f;
+        tileObject.GetComponent<SingleTileScript>().setTileColor(TileColor.EMPTY);
         break;
     }
     tileObject.GetComponent<SpriteRenderer>().color = tileColor;
