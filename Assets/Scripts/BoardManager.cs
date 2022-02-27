@@ -9,6 +9,8 @@ public class BoardManager : MonoBehaviour
   public static List<GameObject> BoardTiles = new List<GameObject>();
   // Start is called before the first frame update
 
+  public static List<GameObject> tileBGs = new List<GameObject>();
+
 
   // Update is called once per frame
   void Update()
@@ -22,6 +24,13 @@ public class BoardManager : MonoBehaviour
     foreach (GameObject tile in tiles)
     {
       BoardTiles.Add(tile);
+    }
+
+    GameObject[] BGs = GameObject.FindGameObjectsWithTag("Tile Background");
+    foreach (GameObject tile in BGs)
+    {
+      tileBGs.Add(tile);
+      tile.SetActive(false);
     }
 
     setBoardToBelgianLayout();
