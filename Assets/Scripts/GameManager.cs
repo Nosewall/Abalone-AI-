@@ -8,10 +8,16 @@ public class GameManager : MonoBehaviour
   public BoardManager boardManager;
   public OptionsForLaunch gameOptions;
 
+  public Abalone abalone;
+
   public static Turn currentTurn;
 
   public void startGame()
   {
+    //Grab reference to backend
+    abalone = new Abalone();
+
+    //Set up board
     currentTurn = Turn.BLACK;
     boardManager.referenceAllBoardTiles();
     switch (gameOptions.GetLayout())
@@ -31,6 +37,8 @@ public class GameManager : MonoBehaviour
         boardManager.setBoardToGermanLayout();
         break;
     }
+    abalone.generateBoard();
+    abalone.updateGameStateBoard();
   }
 
   public static Turn getCurrentTurn()

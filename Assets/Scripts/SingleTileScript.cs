@@ -4,30 +4,23 @@ using UnityEngine;
 
 public class SingleTileScript : MonoBehaviour
 {
-  public TileColor tileColor;
+  public InputScript inputScript;
+  public BoardColor tileColor;
 
 
   public void OnMouseDown()
   {
     Debug.Log("Clicked tile :" + this.gameObject.name);
-    InputScript.tryToSelectTile(this.gameObject);
+    inputScript.tryToSelectTile(this.gameObject);
   }
 
-  public void setTileColor(TileColor color)
+  public void setTileColor(BoardColor color)
   {
     tileColor = color;
   }
 
-  public TileColor getTileColor()
+  public BoardColor getTileColor()
   {
     return tileColor;
   }
-}
-
-public enum TileColor
-{
-  BLACK,
-  WHITE,
-  EMPTY,
-
 }

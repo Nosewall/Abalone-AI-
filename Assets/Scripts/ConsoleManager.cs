@@ -29,6 +29,11 @@ public class ConsoleManager : MonoBehaviour
     }
   }
 
+  public void printNotAPillarError()
+  {
+    sendMessageToConsole("You tried to move tiles that weren't in a pillar. Invalid move.");
+  }
+
   public void sendMessageToConsole(string newMessage)
   {
     if (messageList.Count > maxMessages)
