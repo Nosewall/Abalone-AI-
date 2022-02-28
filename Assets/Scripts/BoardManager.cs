@@ -57,17 +57,19 @@ public class BoardManager : MonoBehaviour
     {
       case BoardColor.BLACK:
         tileColor = Color.black;
+        tileColor.a = .9f;
         tileObject.GetComponent<SingleTileScript>().setTileColor(TileColor.BLACK);
         break;
 
       case BoardColor.WHITE:
         tileColor = Color.white;
+        tileColor.a = .9f;
         tileObject.GetComponent<SingleTileScript>().setTileColor(TileColor.WHITE);
         break;
 
       case BoardColor.EMPTY:
-        tileColor = Color.white;
-        tileColor.a = .4f;
+        tileColor = Color.magenta;
+        tileColor.a = .3f;
         tileObject.GetComponent<SingleTileScript>().setTileColor(TileColor.EMPTY);
         break;
     }
