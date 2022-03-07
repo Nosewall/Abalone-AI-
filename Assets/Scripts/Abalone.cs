@@ -5,21 +5,24 @@ using System;
 
 public class Abalone : MonoBehaviour
 {
-  public BoardBuilder builder;
+  public BoardBuilder boardBuilder;
   public ConsoleManager consoleManager;
-
   public BoardManager boardManager;
-  public static List<Node> boardState;
+  public static Node[,] boardState;
 
   public void generateBoard()
   {
     boardState = BoardBuilder.createBoard();
-    generateAllNeighbors(boardState);
-  }
+    boardBuilder.generateAllNeighbors(boardState);
+    updateGameStateBoard();
+    foreach (Node node in boardState)
+    {
+      if (node != null)
+      {
+        consoleManager.sendMessageToConsole("Node color! : " + node.getColor());
+      }
 
-  public void generateAllNeighbors(List<Node> board)
-  {
-    builder.generateAllNeighbors(board);
+    }
   }
 
   //Take the gamestate from the backEnd, and push it to the front end.
@@ -31,12 +34,16 @@ public class Abalone : MonoBehaviour
       string UITileName = UIBoardTile.name;
       foreach (Node backEndTile in boardState)
       {
-        string backEndTileName = backEndTile.getName();
-        if (backEndTileName.Equals(UITileName))
+        if (backEndTile != null)
         {
-          boardManager.changeTileColor(UIBoardTile, backEndTile.getColor());
-          break;
+          string backEndTileName = backEndTile.getName();
+          if (backEndTileName.Equals(UITileName))
+          {
+            boardManager.changeTileColor(UIBoardTile, backEndTile.getColor());
+            break;
+          }
         }
+
       }
     }
   }
@@ -47,15 +54,19 @@ public class Abalone : MonoBehaviour
   {
     foreach (Node backEndTile in boardState)
     {
-      string backEndTileName = backEndTile.getName();
-      foreach (GameObject UIBoardTile in BoardManager.BoardTiles)
+      if (backEndTile != null)
       {
-        string UITileName = UIBoardTile.name;
-        if (backEndTileName.Equals(UITileName))
+        string backEndTileName = backEndTile.getName();
+        foreach (GameObject UIBoardTile in BoardManager.BoardTiles)
         {
-          backEndTile.setColor(UIBoardTile.GetComponent<SingleTileScript>().getTileColor());
+          string UITileName = UIBoardTile.name;
+          if (backEndTileName.Equals(UITileName))
+          {
+            backEndTile.setColor(UIBoardTile.GetComponent<SingleTileScript>().getTileColor());
+          }
         }
       }
+
     }
   }
 
@@ -63,15 +74,54 @@ public class Abalone : MonoBehaviour
   public Node getNode(string name)
   {
     Node nodeToReturn = new Node("ERROR FINDING NODE", BoardColor.EMPTY, true, 0, 0);
-    foreach (Node newNode in boardState)
+    string firstChar = name.Substring(0, 1);
+    int secondInt = Int32.Parse(name.Substring(1, 1));
+    int firstInt = 0;
+    switch (firstChar)
     {
-      if (newNode.getName().Equals(name))
-      {
-        nodeToReturn = newNode;
+      case "A":
+        firstInt = 8;
         break;
-      }
+      case "B":
+        firstInt = 7;
+        break;
+      case "C":
+        firstInt = 6;
+        break;
+      case "D":
+        firstInt = 5;
+        break;
+      case "E":
+        firstInt = 4;
+        break;
+      case "F":
+        firstInt = 3;
+        break;
+      case "G":
+        firstInt = 2;
+        break;
+      case "H":
+        firstInt = 1;
+        break;
+      case "I":
+        firstInt = 0;
+        break;
+
     }
+    nodeToReturn = boardState[firstInt, secondInt - 1];
+    consoleManager.sendMessageToConsole(nodeToReturn.getName() + " Node returned - " + nodeToReturn.getColor());
+    consoleManager.sendMessageToConsole(nodeToReturn.getX() + "," + nodeToReturn.getY());
     return nodeToReturn;
+  }
+
+  public Node getNode(int x, int y)
+  {
+    return boardState[y, x];
+  }
+
+  public Boolean isNodeNull(int x, int y)
+  {
+    return getNode(x, y) == null;
   }
 
   //Overloaded helper method, get node by tile
@@ -81,173 +131,28 @@ public class Abalone : MonoBehaviour
     return getNode(tileName);
   }
 
-  //Overloaded helper method, get node by coordinates
-  public Node getNode(int x, int y)
-  {
-    Node nodeToReturn = new Node("ERROR FINDING NODE BY COORDINATES", BoardColor.EMPTY, true, 0, 0);
-    foreach (Node node in boardState)
-    {
-      if (node.getX() == x)
-      {
-        if (node.getY() == y)
-        {
-          nodeToReturn = node;
-          break;
-        }
-      }
-    }
-    return nodeToReturn;
-  }
-
-  public bool checkIfTilesAreInLine(List<Node> nodeList)
-  {
-    //If there is only 1 piece, then the pieces are in a line.
-    if (nodeList.Count <= 1)
-    {
-      return true;
-    }
-    bool tilesAreInLine = false;
-
-    //Make a list of all coordinates
-    int[] xList = new int[nodeList.Count];
-    int[] yList = new int[nodeList.Count];
-    for (int i = 0; i < nodeList.Count; i++)
-    {
-      xList[i] = nodeList[i].getX();
-      yList[i] = nodeList[i].getY();
-    }
-
-    //sort Arrays for Validation
-    Array.Sort(xList);
-    Array.Sort(yList);
-
-
-
-    //Strait West -> East or East -> West
-    bool eastWestPillar = false;
-    for (int i = 0; i < nodeList.Count - 1; i++)
-    {
-      eastWestPillar = xList[i + 1] - xList[i] == 2;
-      if (!eastWestPillar)
-      {
-        break;
-      }
-    }
-
-    //SW -> NE pillar
-    bool southWestPillar = false;
-    for (int i = 0; i < nodeList.Count - 1; i++)
-    {
-      southWestPillar = xList[i + 1] - xList[i] == 1 && yList[i + 1] - yList[i] == 1;
-      if (!southWestPillar)
-      {
-        break;
-      }
-    }
-
-    //NW -> SE pillar !!!!Actually this one might be redundant with a sorted array. Hmmmm.
-    bool northWestPillar = false;
-    for (int i = 0; i < nodeList.Count - 1; i++)
-    {
-      northWestPillar = xList[i + 1] - xList[i] == 1 && yList[i + 1] - yList[i] == 1;
-      if (!northWestPillar)
-      {
-        break;
-      }
-    }
-
-    tilesAreInLine = eastWestPillar || northWestPillar || southWestPillar;
-    return tilesAreInLine;
-  }
-
-  //Checks if nodes are in a horizontal pillar. Because we only call this after we know that the Nodes are already in a valid pillar, this will return false only if the nodes are in a diagonal Pillar
-  public bool areNodesInHorizontalPillar(List<Node> nodeList)
-  {
-    if (nodeList.Count <= 1)
-    {
-      return true;
-    }
-
-    int[] xList = new int[nodeList.Count];
-    for (int i = 0; i < nodeList.Count; i++)
-    {
-      xList[i] = nodeList[i].getX();
-    }
-
-    Array.Sort(xList);
-
-    return xList[1] - xList[0] == 2;
-  }
-
-  //Check if the tile to the east of a proposed pillar move is empty
-  public bool checkIfEastIsEmptyPillar(List<Node> nodeList)
-  {
-    int[] xList = getXCoordsFromNodes(nodeList);
-    int xCoordOfNeighbor = xList[xList.Length - 1] + 2;
-    int yCoordOfNeighbor = nodeList[0].getY();
-    Node neighborNode = getNode(xCoordOfNeighbor, yCoordOfNeighbor);
-    return neighborNode.getColor() == BoardColor.EMPTY;
-  }
-
-  public bool checkIfEastIsEmptySideStep(List<Node> nodeList)
-  {
-    int[] xList = getXCoordsFromNodes(nodeList);
-    int[] yList = getYCoordsFromNodes(nodeList);
-
-    List<Node> neighborList;
-    return true; //TEMP
-  }
-
-  public int[] getXCoordsFromNodes(List<Node> nodeList)
-  {
-    int[] xList = new int[nodeList.Count];
-    for (int i = 0; i < nodeList.Count; i++)
-    {
-      xList[i] = nodeList[i].getX();
-    }
-
-    Array.Sort(xList);
-    return xList;
-  }
-
-  public int[] getYCoordsFromNodes(List<Node> nodeList)
-  {
-    int[] yList = new int[nodeList.Count];
-    for (int i = 0; i < nodeList.Count; i++)
-    {
-      yList[i] = nodeList[i].getY();
-    }
-
-    Array.Sort(yList);
-    return yList;
-  }
-
-
 }
 
 //The digital representation of a single board tile
 public class Node
 {
-  private int xPosition; // X position 1 - 21
-  private int yPosition; // Y position 1 - 11
   private BoardColor color; // Current state
   private string name; //ID name of the node on the board
   private bool deadZone; // Is this a tile off the board?
-  private List<Node> adjacentNodes; // All adjacent Nodes
+  private Node[] adjacentNodes; // All adjacent Nodes
+
+  private int xcoord;
+  private int ycoord;
 
   public Node(string name, BoardColor startingColor, bool isDead, int x, int y)
   {
     this.name = name;
     this.color = startingColor;
     this.deadZone = isDead;
-    this.xPosition = x;
-    this.yPosition = y;
-    adjacentNodes = new List<Node>();
-  }
+    adjacentNodes = new Node[6];
+    this.xcoord = x;
+    this.ycoord = y;
 
-  public void addNodeToAdjacent(Node newNode)
-  {
-    adjacentNodes.Add(newNode);
   }
 
   public string getName()
@@ -265,23 +170,54 @@ public class Node
     this.color = color;
   }
 
-  public int getX()
-  {
-    return xPosition;
-  }
-  public int getY()
-  {
-    return yPosition;
-  }
-
   public bool getDeadZone()
   {
     return deadZone;
   }
 
-  public List<Node> getNeighbors()
+  public Node[] getNeighbors()
   {
     return adjacentNodes;
+  }
+
+  public int getX()
+  {
+    return xcoord;
+  }
+
+  public int getY()
+  {
+    return ycoord;
+  }
+
+  public Node getNWNeighbor()
+  {
+    return adjacentNodes[0];
+  }
+
+  public Node getNENeighbor()
+  {
+    return adjacentNodes[1];
+  }
+
+  public Node getENeighbor()
+  {
+    return adjacentNodes[2];
+  }
+
+  public Node getSENeighbor()
+  {
+    return adjacentNodes[3];
+  }
+
+  public Node getSWNeighbor()
+  {
+    return adjacentNodes[4];
+  }
+
+  public Node getWNeighbor()
+  {
+    return adjacentNodes[5];
   }
 }
 

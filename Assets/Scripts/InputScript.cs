@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class InputScript : MonoBehaviour
 {
+  public Movement movement;
   public ConsoleManager consoleManager;
   public Abalone abalone;
   public GameManager gameManager;
   public int numberOfSelectedTiles;
+  public static List<GameObject> selectedTiles;
   public static GameObject FindGameObjectInChildWithTag(GameObject parent, string tag)
   {
     Transform t = parent.transform;
@@ -21,7 +23,7 @@ public class InputScript : MonoBehaviour
     return null;
   }
 
-  public static List<GameObject> selectedTiles;
+
   // Start is called before the first frame update
   public void Start()
   {
@@ -40,7 +42,6 @@ public class InputScript : MonoBehaviour
     {
       TileBg.SetActive(true);
       selectedTiles.Add(tile);
-      Debug.Log("Clicked tile : " + tile.name);
     }
     if (selectedTiles.Count > 3)
     {
@@ -56,15 +57,20 @@ public class InputScript : MonoBehaviour
 
   }
 
+  public static void deselectAllTiles()
+  {
+    foreach (GameObject tile in selectedTiles)
+    {
+      GameObject TileBg = FindGameObjectInChildWithTag(tile, "Tile Background");
+      TileBg.SetActive(false);
+    }
+
+    selectedTiles = new List<GameObject>();
+  }
+
   public void tryToSelectTile(GameObject tile)
   {
-    consoleManager.sendMessageToConsole("Printing all neighbors!");
-    Node testNode = abalone.getNode(tile);
-    foreach (Node n in testNode.getNeighbors())
-    {
-      consoleManager.sendMessageToConsole(n.getName());
-    }
-    abalone.getNode(tile.name);
+    Node node = abalone.getNode(tile.name);
     BoardColor selectedColor = tile.GetComponent<SingleTileScript>().getTileColor();
     if (selectedColor.ToString().Equals(GameManager.getCurrentTurn().ToString()))
     {
@@ -72,63 +78,30 @@ public class InputScript : MonoBehaviour
       addClickedTile(tile);
     }
   }
-
-
-
   public void moveE()
   {
-    //Get selected tiles on the backend
-    List<Node> selectedNodes = new List<Node>();
-    foreach (GameObject selectedObject in selectedTiles)
-    {
-      selectedNodes.Add(abalone.getNode(selectedObject));
-
-      //Check if valid configuration for a move ( A Pillar )
-      bool isValidMove = abalone.checkIfTilesAreInLine(selectedNodes);
-      if (!isValidMove)
-      {
-        consoleManager.printNotAPillarError();
-        return;
-      }
-      //Check if you're moving strait or Diagonally
-      bool horizontalPillar = abalone.areNodesInHorizontalPillar(selectedNodes);
-
-      //Check if the space is empty
-      bool spaceIsEmptyEast = false;
-      if (horizontalPillar)
-      {
-        spaceIsEmptyEast = abalone.checkIfEastIsEmptyPillar(selectedNodes);
-      }
-      else
-      {
-        spaceIsEmptyEast = abalone.checkIfEastIsEmptySideStep(selectedNodes);
-      }
-      //If the space is empty and selected tiles in a line, move tiles
-      //Else if the space is occupied, check by how many tiles
-      //If less, push tiles
-      //Check for tiles off the board and destroy them
-      //switch turns
-    }
+    movement.validateMovement(Direction.E);
   }
+
   public void moveSE()
   {
-
+    movement.validateMovement(Direction.SE);
   }
   public void moveSW()
   {
-
+    movement.validateMovement(Direction.SW);
   }
   public void moveW()
   {
-
+    movement.validateMovement(Direction.W);
   }
   public void moveNW()
   {
-
+    movement.validateMovement(Direction.NW);
   }
   public void moveNE()
   {
-
+    movement.validateMovement(Direction.NE);
   }
 
 }

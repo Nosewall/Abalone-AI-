@@ -14,8 +14,6 @@ public class GameManager : MonoBehaviour
 
   public void startGame()
   {
-    //Grab reference to backend
-    abalone = new Abalone();
 
     //Set up board
     currentTurn = Turn.BLACK;
@@ -39,6 +37,7 @@ public class GameManager : MonoBehaviour
     }
     abalone.generateBoard();
     abalone.updateGameStateBoard();
+    Debug.Log("Test");
   }
 
   public static Turn getCurrentTurn()

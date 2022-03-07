@@ -9,7 +9,7 @@ public class TileBackgroundScript : MonoBehaviour
   double B = 0;
 
   double L = 400;
-  int speed = 10;
+  float speed = 0.10F;
   GameObject thisObject;
   // Start is called before the first frame update
   void Start()
@@ -20,7 +20,7 @@ public class TileBackgroundScript : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
-    L = L + (0.05);
+    L = L + (speed);
     if (L > 700)
     {
       L = 400;
