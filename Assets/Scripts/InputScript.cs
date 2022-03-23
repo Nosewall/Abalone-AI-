@@ -71,6 +71,7 @@ public class InputScript : MonoBehaviour
   public void tryToSelectTile(GameObject tile)
   {
     Node node = abalone.getNode(tile.name);
+    consoleManager.sendMessageToConsole("N " + node.getName() + " X " + node.getX() + " Y " + node.getY());
     BoardColor selectedColor = tile.GetComponent<SingleTileScript>().getTileColor();
     if (selectedColor.ToString().Equals(GameManager.getCurrentTurn().ToString()))
     {

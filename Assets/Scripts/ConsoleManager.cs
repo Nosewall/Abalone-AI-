@@ -48,7 +48,6 @@ public class ConsoleManager : MonoBehaviour
     message.textObject = newText.GetComponent<Text>();
     message.textObject.text = message.text;
     messageList.Add(message);
-    Debug.Log(messageList);
   }
 }
 

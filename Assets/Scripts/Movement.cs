@@ -5,8 +5,11 @@ using System;
 using System.Linq;
 public class Movement : MonoBehaviour
 {
+  public BoardManager boardManager;
   public ConsoleManager consoleManager;
   public Abalone abalone;
+
+  public GameManager gameManager;
 
   //Checks if the tiles are in a valid line for movement
   public bool checkIfTilesAreInLine()
@@ -283,73 +286,219 @@ public class Movement : MonoBehaviour
 
   public Boolean checkIfCanPush(Direction direction, int columnSize)
   {
-
-
+    Debug.Log("Checking if can push");
     List<Node> nodeList = new List<Node>();
     foreach (GameObject tile in InputScript.selectedTiles)
     {
       nodeList.Add(abalone.getNode(tile));
     }
+    int pushPower = nodeList.Count;
 
     List<Node> nodeListByX = nodeList.OrderBy(x => x.getX()).ToList();
     List<Node> nodeListByY = nodeList.OrderBy(x => x.getY()).ToList();
 
     Boolean canPush = false;
     BoardColor color = nodeList[0].getColor();
+    BoardColor opponentColor = BoardColor.EMPTY;
+    if (color == BoardColor.BLACK)
+    {
+      opponentColor = BoardColor.WHITE;
+    }
+    else
+    {
+      opponentColor = BoardColor.BLACK;
+    }
+
+    Node headNode = getHeadOfStackByDirection(direction);
+
+    //Check first tile
+    if (checkIfNodeIsNullByDirection(direction, headNode))
+    {
+      consoleManager.sendMessageToConsole("Trying to push empty space. Invalid move");
+      return false;
+    }
+    Node next = getNextTileByDirection(direction, headNode);
+
+    Boolean keepSearching = true;
+    int numberToPush = 0;
+
+    while (keepSearching)
+    {
+      if (next.getColor() == color)
+      {
+        keepSearching = false;
+        canPush = false;
+        consoleManager.sendMessageToConsole("Tried to push, but ran into one of your own pieces");
+      }
+      else if (next.getColor() == opponentColor)
+      {
+        numberToPush++;
+        if (checkIfNodeIsNullByDirection(direction, next))
+        {
+          keepSearching = false;
+          next.setColor(BoardColor.EMPTY);
+          consoleManager.sendMessageToConsole("Pushing a piece off the board");
+          consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
+          push(direction, nodeList);
+        }
+        nodeList.Add(next);
+        next = getNextTileByDirection(direction, next);
+      }
+      else if (next.getColor() == BoardColor.EMPTY)
+      {
+        keepSearching = false;
+        consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
+        if (numberToPush < pushPower)
+        {
+          push(direction, nodeList);
+        }
+        else
+        {
+          consoleManager.sendMessageToConsole("You're trying to push more tiles than you're able to.");
+        }
+      }
+    }
+
+    return canPush;
+
+  }
+
+  public Node getHeadOfStackByDirection(Direction direction, List<GameObject> selectedList = null, List<Node> inputNodeList = null)
+  {
+    if (selectedList == null)
+    {
+      selectedList = InputScript.selectedTiles;
+    }
+    List<Node> nodeList = new List<Node>();
+    foreach (GameObject tile in selectedList)
+    {
+      nodeList.Add(abalone.getNode(tile));
+    }
+
+    if (inputNodeList != null)
+    {
+      nodeList = inputNodeList;
+    }
+
+    List<Node> nodeListByX = nodeList.OrderBy(x => x.getX()).ToList();
+    List<Node> nodeListByY = nodeList.OrderBy(x => x.getY()).ToList();
+
+    Node toReturn = new Node("Error finding node head", BoardColor.EMPTY, false, 0, 0);
 
     //NW
     if (direction == Direction.NW)
     {
-      Node head = nodeListByY[0];
-      Node toPush = abalone.getNode(head.getX(), head.getY() - 1);
-      if (toPush == null)
-      {
-        consoleManager.sendMessageToConsole("Trying to 'push' empty space. Invalid move.");
-      }
-      else if (toPush.getColor() == color)
-      {
-        consoleManager.sendMessageToConsole("You can't push your own color. Invalid move.");
-      }
-      else
-      {
-        consoleManager.sendMessageToConsole("Attempting to build a push move to the NW -- MOVEMENT.CHECKIFPUSH");
-        List<Node> OnesToPush = new List<Node>();
-        BoardColor opponentColor = toPush.getColor();
-        Boolean continueSearching = true;
-        OnesToPush.Add(toPush);
-        Node next = abalone.getNode(toPush.getX(), toPush.getY() + 1);
-
-
-      }
-
+      toReturn = nodeListByY[0];
     }
     //NE
     if (direction == Direction.NE)
     {
-      Node head = nodeListByY[0];
+      toReturn = nodeListByX[nodeListByX.Count - 1];
     }
     //E
     if (direction == Direction.E)
     {
-      Node head = nodeListByX[nodeList.Count - 1];
+      toReturn = nodeListByX[nodeListByX.Count - 1];
     }
     //SE
     if (direction == Direction.SE)
     {
-      Node head = nodeListByY[nodeList.Count - 1];
+      toReturn = nodeListByY[nodeListByX.Count - 1];
     }
-    //SW
+    //SWNE
     if (direction == Direction.SW)
     {
-      Node head = nodeListByY[nodeList.Count - 1];
+      toReturn = nodeListByY[nodeListByX.Count - 1];
     }
     //W
     if (direction == Direction.W)
     {
-      Node head = nodeListByX[0];
+      toReturn = nodeListByX[0];
     }
-    return canPush;
+    return toReturn;
 
+  }
+
+  public Node getNextTileByDirection(Direction direction, Node node)
+  {
+    Node toReturn = new Node("Error finding next node", BoardColor.EMPTY, false, 0, 0);
+
+    //NW
+    if (direction == Direction.NW)
+    {
+      toReturn = abalone.getNode(node.getX(), node.getY() - 1);
+    }
+    //NE
+    if (direction == Direction.NE)
+    {
+      toReturn = abalone.getNode(node.getX() + 1, node.getY() - 1);
+    }
+    //E
+    if (direction == Direction.E)
+    {
+      toReturn = abalone.getNode(node.getX() + 1, node.getY());
+    }
+    //SE
+    if (direction == Direction.SE)
+    {
+      toReturn = abalone.getNode(node.getX(), node.getY() + 1);
+    }
+    //SWNE
+    if (direction == Direction.SW)
+    {
+      toReturn = abalone.getNode(node.getX() - 1, node.getY() + 1);
+    }
+    //W
+    if (direction == Direction.W)
+    {
+      toReturn = abalone.getNode(node.getX() - 1, node.getY());
+    }
+    return toReturn;
+
+  }
+
+  public Boolean checkIfNodeIsNullByDirection(Direction direction, Node node)
+  {
+    Boolean isTileNull = false;
+    try
+    {
+
+      //NW
+      if (direction == Direction.NW)
+      {
+        isTileNull = abalone.getNode(node.getX(), node.getY() - 1) == null;
+      }
+      //NE
+      if (direction == Direction.NE)
+      {
+        isTileNull = abalone.getNode(node.getX() + 1, node.getY() - 1) == null;
+      }
+      //E
+      if (direction == Direction.E)
+      {
+        isTileNull = abalone.getNode(node.getX() + 1, node.getY()) == null;
+      }
+      //SE
+      if (direction == Direction.SE)
+      {
+        isTileNull = abalone.getNode(node.getX(), node.getY() + 1) == null;
+      }
+      //SW
+      if (direction == Direction.SW)
+      {
+        isTileNull = abalone.getNode(node.getX() - 1, node.getY() + 1) == null;
+      }
+      //W
+      if (direction == Direction.W)
+      {
+        isTileNull = abalone.getNode(node.getX() - 1, node.getY()) == null;
+      }
+    }
+    catch (IndexOutOfRangeException)
+    {
+      return true;
+    }
+    return isTileNull;
   }
 
   public void validateMovement(Direction direction)
@@ -402,13 +551,17 @@ public class Movement : MonoBehaviour
   }
 
   //Once movement is validated, this can be called to move tiles
-  public void move(Direction direction)
+  public void move(Direction direction, List<Node> nodeList = null)
   {
-    List<Node> nodeList = new List<Node>();
-    foreach (GameObject tile in InputScript.selectedTiles)
+    if (nodeList == null)
     {
-      nodeList.Add(abalone.getNode(tile));
+      nodeList = new List<Node>();
+      foreach (GameObject tile in InputScript.selectedTiles)
+      {
+        nodeList.Add(abalone.getNode(tile));
+      }
     }
+
     List<Node> neighbors = new List<Node>();
     BoardColor color = nodeList[0].getColor();
 
@@ -471,17 +624,45 @@ public class Movement : MonoBehaviour
       node.setColor(color);
     }
 
+    gameManager.cycleTurn();
+
   }
 
-  //Once pushing is confirmed, this can be called to push
-  public void push(Direction direction)
+  public void moveColumn(Direction direction, List<Node> nodeList)
   {
-
+    while (nodeList.Count > 0)
+    {
+      Node head = getHeadOfStackByDirection(direction, null, nodeList);
+      Node next = getNextTileByDirection(direction, head);
+      next.setColor(head.getColor());
+      head.setColor(BoardColor.EMPTY);
+      nodeList.Remove(head);
+    }
   }
-  //Check if space in empty
-  //sidestep -> if empty: move.
-  //pillar - > if empty, move. If not, check advantage. If advantage, push. If not, no push.
-  //Once move complete, Deselect all tiles, cycle turns
+
+  public void push(Direction direction, List<Node> nodeList)
+  {
+    List<GameObject> gameObjectList = new List<GameObject>();
+
+    foreach (Node node in nodeList)
+    {
+      GameObject boardTile = boardManager.getTile(node.getName());
+      gameObjectList.Add(boardTile);
+    }
+    Node head = getHeadOfStackByDirection(direction, gameObjectList);
+    if (getNextTileByDirection(direction, head) == null)
+    {
+      head.setColor(BoardColor.EMPTY);
+      nodeList.Remove(head);
+      //! Update game counter for pieces moved
+    }
+    moveColumn(direction, nodeList);
+    abalone.updateUIBoard();
+    InputScript.deselectAllTiles();
+    gameManager.cycleTurn();
+  }
+
+
 }
 
 

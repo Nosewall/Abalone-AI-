@@ -15,14 +15,6 @@ public class Abalone : MonoBehaviour
     boardState = BoardBuilder.createBoard();
     boardBuilder.generateAllNeighbors(boardState);
     updateGameStateBoard();
-    foreach (Node node in boardState)
-    {
-      if (node != null)
-      {
-        consoleManager.sendMessageToConsole("Node color! : " + node.getColor());
-      }
-
-    }
   }
 
   //Take the gamestate from the backEnd, and push it to the front end.
@@ -109,8 +101,6 @@ public class Abalone : MonoBehaviour
 
     }
     nodeToReturn = boardState[firstInt, secondInt - 1];
-    consoleManager.sendMessageToConsole(nodeToReturn.getName() + " Node returned - " + nodeToReturn.getColor());
-    consoleManager.sendMessageToConsole(nodeToReturn.getX() + "," + nodeToReturn.getY());
     return nodeToReturn;
   }
 
