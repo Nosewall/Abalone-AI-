@@ -6,7 +6,6 @@ using System.Timers;
 
 public class GameManager : MonoBehaviour
 {
-  private static Timer gameTimer;
   public ConsoleManager consoleManager;
   public BoardManager boardManager;
   public OptionsForLaunch gameOptions;
@@ -20,6 +19,11 @@ public class GameManager : MonoBehaviour
   public TextMeshProUGUI blacktimeUI;
   public TextMeshProUGUI totalTimer;
 
+  private float totalMilisecondsPassed;
+
+  private float blackMilisecondsPassed;
+
+  private float whiteMilisecondsPassed;
 
   public float blackTotalTime;
   public float whiteTotalTime;
@@ -33,19 +37,51 @@ public class GameManager : MonoBehaviour
   private void startTimer()
   {
     consoleManager.sendMessageToConsole("Starting!");
-    gameTimer = new Timer(100);
-    gameTimer.Elapsed += updateTimers;
-    gameTimer.AutoReset = true;
-    gameTimer.Enabled = true;
   }
 
-  private void updateTimers(object source, ElapsedEventArgs e)
+  private void FixedUpdate()
   {
-    Debug.Log("In update");
-    string time = e.SignalTime.ToLongTimeString();
-    Debug.Log(time);
-    totalTimer.SetText(time);
-    consoleManager.sendMessageToConsole(time);
+
+    updateTotalTimer();
+    if (currentTurn == Turn.BLACK)
+    {
+      updateBlackTimer();
+    }
+    else
+    {
+      updateWhiteTimer();
+    }
+
+  }
+
+  public void updateTotalTimer()
+  {
+    totalMilisecondsPassed += Time.deltaTime;
+    totalTimer.SetText(formatMiliseconds(totalMilisecondsPassed));
+  }
+
+  public void updateBlackTimer()
+  {
+    blackMilisecondsPassed += Time.deltaTime;
+    blacktimeUI.SetText(formatMiliseconds(blackMilisecondsPassed));
+    blackTotalTime = blackMilisecondsPassed;
+  }
+
+  public void updateWhiteTimer()
+  {
+    whiteMilisecondsPassed += Time.deltaTime;
+    whiteTimeUI.SetText(formatMiliseconds(whiteMilisecondsPassed));
+    whiteTotalTime = whiteMilisecondsPassed;
+  }
+
+  public string formatMiliseconds(float miliseconds)
+  {
+    string min = Mathf.Floor(miliseconds / 60).ToString("00");
+    float secFloat = miliseconds % 60;
+    string sec = Mathf.Floor(miliseconds % 60).ToString("00");
+    string mil = Mathf.Floor((miliseconds * 100) % 100).ToString("00");
+    string timeString = string.Format("{0}:{1}:{2}", min, sec, mil);
+    return timeString;
   }
 
   public void startGame()
@@ -87,7 +123,9 @@ public class GameManager : MonoBehaviour
       whiteTurnsUI.SetText(gameOptions.getTurnLimit().ToString());
       blackTurnsUI.SetText(gameOptions.getTurnLimit().ToString());
     }
-
+    totalMilisecondsPassed = 0;
+    blackMilisecondsPassed = 0;
+    whiteMilisecondsPassed = 0;
     whiteLostPiecesUI.SetText("0");
     blackLostPiecesUI.SetText("0");
     whiteLostPieces = 0;
@@ -112,6 +150,8 @@ public class GameManager : MonoBehaviour
 
   public void cycleTurn()
   {
+    cycleTurnsRemaining(currentTurn);
+
     if (currentTurn == Turn.BLACK)
     {
       currentTurn = Turn.WHITE;
@@ -125,16 +165,36 @@ public class GameManager : MonoBehaviour
 
   public void addLostPiece(Turn player)
   {
-
-  }
-
-  public void cycleTimer(Turn player)
-  {
-
+    consoleManager.sendMessageToConsole("Adding lost Piece");
+    switch (player)
+    {
+      case Turn.BLACK:
+        whiteLostPieces++;
+        whiteLostPiecesUI.SetText(whiteLostPieces.ToString());
+        break;
+      case Turn.WHITE:
+        blackLostPieces++;
+        blackLostPiecesUI.SetText(blackLostPieces.ToString());
+        break;
+    }
   }
 
   public void cycleTurnsRemaining(Turn player)
   {
+    if (!blackTurnsUI.text.Equals("N/A"))
+    {
+      switch (player)
+      {
+        case Turn.BLACK:
+          blackTurnsLeft--;
+          blackTurnsUI.SetText(blackTurnsLeft.ToString());
+          break;
+        case Turn.WHITE:
+          whiteTurnsLeft--;
+          whiteTurnsUI.SetText(whiteTurnsLeft.ToString());
+          break;
+      }
+    }
 
   }
   public void getTime()

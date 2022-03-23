@@ -630,9 +630,16 @@ public class Movement : MonoBehaviour
 
   public void moveColumn(Direction direction, List<Node> nodeList)
   {
+    // Turn lostPieceColor = Turn.BLACK;
+    Node head = getHeadOfStackByDirection(direction, null, nodeList);
+    // if (head.getColor() == BoardColor.WHITE)
+    // {
+    //   lostPieceColor = Turn.WHITE;
+    // }
+    // gameManager.addLostPiece(lostPieceColor);
     while (nodeList.Count > 0)
     {
-      Node head = getHeadOfStackByDirection(direction, null, nodeList);
+      head = getHeadOfStackByDirection(direction, null, nodeList);
       Node next = getNextTileByDirection(direction, head);
       next.setColor(head.getColor());
       head.setColor(BoardColor.EMPTY);
@@ -649,19 +656,12 @@ public class Movement : MonoBehaviour
       GameObject boardTile = boardManager.getTile(node.getName());
       gameObjectList.Add(boardTile);
     }
-    Node head = getHeadOfStackByDirection(direction, gameObjectList);
-    if (getNextTileByDirection(direction, head) == null)
-    {
-      head.setColor(BoardColor.EMPTY);
-      nodeList.Remove(head);
-      //! Update game counter for pieces moved
-    }
+
     moveColumn(direction, nodeList);
     abalone.updateUIBoard();
     InputScript.deselectAllTiles();
     gameManager.cycleTurn();
   }
-
 
 }
 
