@@ -270,7 +270,7 @@ public class Agent : MonoBehaviour
 
     if (side == 1)
     {
-      if (state.getWhite() == 9)
+      if (state.getWhite() == 8)
       {
         return 1000000;
       }
@@ -278,7 +278,7 @@ public class Agent : MonoBehaviour
     }
     else
     {
-      if (state.getBlacks() == 9)
+      if (state.getBlacks() == 8)
       {
         return -1000000;
       }
