@@ -23,6 +23,11 @@ public class State : IComparable<State>
     nextStates = new List<State>();
   }
 
+  public State getCopy(){
+        return new State(blackMarbles,whiteMarbles,turn,board);
+    }
+
+
   public int getValue()
   {
     return value;

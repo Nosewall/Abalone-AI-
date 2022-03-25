@@ -7,7 +7,6 @@ using System.Linq;
 
 public class Agent : MonoBehaviour
 {
-  Hashtable transpoTable;
   int largePositive = Int32.MaxValue;
   int largeNegative = Int32.MinValue;
 
@@ -33,7 +32,6 @@ public class Agent : MonoBehaviour
 
   public Agent(State startState)
   {
-    transpoTable = new Hashtable();
     currentState = startState;
     printBoard(currentState.getBoard());
     if (startState.getTurn() == 1)
@@ -49,7 +47,7 @@ public class Agent : MonoBehaviour
       firstTurn = false;
     }
     //!!!REMOVE AFTER TESTING
-    firstTurn = false;
+    //firstTurn = false;
   }
 
   public void setState(State s)
