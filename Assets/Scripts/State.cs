@@ -89,6 +89,30 @@ public class State : IComparable<State>
 
   }
 
+  public int getTurnMarble()
+    {
+        if (turn == 1)
+        {
+            return getBlacks();
+        }
+        else
+        {
+            return getWhite();
+        }
+    }
+
+    public int getOppTurnMarble()
+    {
+        if (turn == 2)
+        {
+            return getBlacks();
+        }
+        else
+        {
+            return getWhite();
+        }
+    }
+
   public void addState(State state)
   {
     nextStates.Add(state);
