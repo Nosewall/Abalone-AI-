@@ -28,7 +28,8 @@ public class MenuScript : MonoBehaviour
   {
     menu.SetActive(false);
     consoleManager.sendMessageToConsole("Game started with these options:");
-    consoleManager.sendMessageToConsole("Players: " + options.GetPlayers());
+    consoleManager.sendMessageToConsole("White is an agent? : " + options.isWhiteAnAgent());
+    consoleManager.sendMessageToConsole("Black is an agent? : " + options.isBlackAnAgent());
     consoleManager.sendMessageToConsole("Color: " + options.GetColor());
     consoleManager.sendMessageToConsole("Layout: " + options.GetLayout());
     consoleManager.sendMessageToConsole("Time Limit: " + options.getTimeLimit());

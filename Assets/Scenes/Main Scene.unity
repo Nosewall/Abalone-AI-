@@ -23197,6 +23197,7 @@ GameObject:
   - component: {fileID: 2049823258}
   - component: {fileID: 2049823259}
   - component: {fileID: 2049823260}
+  - component: {fileID: 2049823261}
   m_Layer: 0
   m_Name: Game Director
   m_TagString: Untagged
@@ -23295,6 +23296,7 @@ MonoBehaviour:
   blackLostPiecesUI: {fileID: 2004572711}
   whiteTimeUI: {fileID: 1718527404}
   blacktimeUI: {fileID: 1272180738}
+  totalTimer: {fileID: 1847901844}
   blackTotalTime: 0
   whiteTotalTime: 0
   blackLostPieces: 0
@@ -23373,6 +23375,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a63a7debbc5ef540b428529035407ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameManager: {fileID: 0}
+  boardManager: {fileID: 0}
+  abalone: {fileID: 0}
+  consoleManager: {fileID: 0}
 --- !u!114 &2049823260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23389,6 +23395,22 @@ MonoBehaviour:
   consoleManager: {fileID: 2049823251}
   abalone: {fileID: 2049823256}
   gameManager: {fileID: 2049823254}
+--- !u!114 &2049823261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049823248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a63a7debbc5ef540b428529035407ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 0}
+  boardManager: {fileID: 0}
+  abalone: {fileID: 0}
+  consoleManager: {fileID: 0}
 --- !u!1 &2065101702 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4409537446627779570, guid: 4c31654b32ae4da4a97ee3bb25dbbbf2, type: 3}

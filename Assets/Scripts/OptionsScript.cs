@@ -14,12 +14,8 @@ public class OptionsScript : MonoBehaviour
   TextMeshProUGUI confirmationText;
 
 
-  Toggle playerVPlayerInput;
-  Toggle playerVAgentInput;
-  Toggle AgentVAgentInput;
-
-  Toggle blackInput;
-  Toggle whiteInput;
+  Toggle whiteAgentToggle;
+  Toggle blackAgentToggle;
 
   Toggle defaultLayoutInput;
   Toggle belgianDaisyInput;
@@ -33,17 +29,11 @@ public class OptionsScript : MonoBehaviour
 
   void assignInputs()
   {
-    GameObject playerVPlayerInputObject = GameObject.Find("Player vs Player Toggle");
-    GameObject playerVAgentInputObject = GameObject.Find("Player Vs Agent Toggle");
-    GameObject AgentVAgentInputObject = GameObject.Find("Agent vs Agent Toggle");
-    playerVPlayerInput = playerVPlayerInputObject.GetComponent<Toggle>();
-    playerVAgentInput = playerVAgentInputObject.GetComponent<Toggle>();
-    AgentVAgentInput = AgentVAgentInputObject.GetComponent<Toggle>();
+    GameObject WhiteAgentToggleObject = GameObject.Find("White Agent Toggle");
+    GameObject BlackAgentToggleObject = GameObject.Find("Black Agent Toggle");
 
-    GameObject blackInputObject = GameObject.Find("Black Toggle");
-    GameObject whiteInputObject = GameObject.Find("White Toggle");
-    blackInput = blackInputObject.GetComponent<Toggle>();
-    whiteInput = whiteInputObject.GetComponent<Toggle>();
+    whiteAgentToggle = WhiteAgentToggleObject.GetComponent<Toggle>();
+    blackAgentToggle = BlackAgentToggleObject.GetComponent<Toggle>();
 
     GameObject defaultLayoutInputObject = GameObject.Find("Default Board Toggle");
     GameObject belgianDaisyInputObject = GameObject.Find("Belgin Daisy Toggle");
@@ -76,26 +66,22 @@ public class OptionsScript : MonoBehaviour
       launchOptions.setLayout(OptionsForLaunch.Layout.German);
     }
 
-    if (blackInput.isOn)
-    {
-      launchOptions.setColor(OptionsForLaunch.Color.Black);
-    }
-    else if (whiteInput.isOn)
-    {
-      launchOptions.setColor(OptionsForLaunch.Color.White);
-    }
 
-    if (playerVPlayerInput.isOn)
+    if (whiteAgentToggle.isOn)
     {
-      launchOptions.setPlayers(OptionsForLaunch.Players.PVP);
+      launchOptions.setWhiteAgent(true);
     }
-    if (playerVAgentInput.isOn)
+    else
     {
-      launchOptions.setPlayers(OptionsForLaunch.Players.PVA);
+      launchOptions.setWhiteAgent(false);
     }
-    if (AgentVAgentInput.isOn)
+    if (blackAgentToggle.isOn)
     {
-      launchOptions.setPlayers(OptionsForLaunch.Players.AVA);
+      launchOptions.setBlackAgent(true);
+    }
+    else
+    {
+      launchOptions.setBlackAgent(false);
     }
   }
 

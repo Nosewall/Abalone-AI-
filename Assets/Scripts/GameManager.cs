@@ -19,21 +19,24 @@ public class GameManager : MonoBehaviour
   public TextMeshProUGUI blacktimeUI;
   public TextMeshProUGUI totalTimer;
 
-  private float totalMilisecondsPassed;
+  float totalMilisecondsPassed;
 
-  private float blackMilisecondsPassed;
+  float blackMilisecondsPassed;
 
-  private float whiteMilisecondsPassed;
+  float whiteMilisecondsPassed;
 
-  public float blackTotalTime;
-  public float whiteTotalTime;
+  float blackTotalTime;
+  float whiteTotalTime;
   public int blackLostPieces;
   public int whiteLostPieces;
   public int whiteTurnsLeft;
   public int blackTurnsLeft;
 
+
+
   public static Turn currentTurn;
 
+  public Agent agent;
   private void startTimer()
   {
     consoleManager.sendMessageToConsole("Starting!");
@@ -51,7 +54,26 @@ public class GameManager : MonoBehaviour
     {
       updateWhiteTimer();
     }
+    if (gameOptions.isBlackAnAgent() && currentTurn == Turn.BLACK)
+    {
+      agentTurn();
+    }
+    if (gameOptions.isWhiteAnAgent() && currentTurn == Turn.WHITE)
+    {
+      agentTurn();
+    }
 
+  }
+
+  public void agentTurn()
+  {
+    State currentState = boardManager.convertBoardToState();
+    agent.setState(currentState);
+    State newState = agent.turn();
+
+    Node[,] newBoard = boardManager.convertStateToBoard(newState);
+    Abalone.boardState = newBoard;
+    abalone.updateUIBoard();
   }
 
   public void updateTotalTimer()
@@ -136,6 +158,8 @@ public class GameManager : MonoBehaviour
     blacktimeUI.SetText("00:00:00");
 
 
+
+
   }
 
   public static Turn getCurrentTurn()
@@ -151,7 +175,6 @@ public class GameManager : MonoBehaviour
   public void cycleTurn()
   {
     cycleTurnsRemaining(currentTurn);
-
     if (currentTurn == Turn.BLACK)
     {
       currentTurn = Turn.WHITE;
@@ -161,12 +184,35 @@ public class GameManager : MonoBehaviour
       currentTurn = Turn.BLACK;
     }
     consoleManager.sendMessageToConsole("Current turn: " + GameManager.getCurrentTurn().ToString());
+    checkForWinCondition();
   }
 
-  public void addLostPiece(Turn player)
+  public void checkForWinCondition()
+  {
+    if (whiteLostPieces >= 6 || blackLostPieces >= 6)
+    {
+      showEndGame(currentTurn);
+    }
+  }
+
+  public void showEndGame(Turn winningPlayer)
+  {
+
+  }
+
+  public int getTurnAsInt()
+  {
+    if (currentTurn == Turn.BLACK)
+    {
+      return 1;
+    }
+    return 2;
+  }
+
+  public void addLostPiece()
   {
     consoleManager.sendMessageToConsole("Adding lost Piece");
-    switch (player)
+    switch (currentTurn)
     {
       case Turn.BLACK:
         whiteLostPieces++;

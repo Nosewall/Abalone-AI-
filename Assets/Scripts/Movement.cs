@@ -237,8 +237,6 @@ public class Movement : MonoBehaviour
     Boolean spaceIsEmpty = false;
     List<Node> nodeList = new List<Node>();
 
-
-
     foreach (GameObject tile in InputScript.selectedTiles)
     {
       nodeList.Add(abalone.getNode(tile));
@@ -336,10 +334,15 @@ public class Movement : MonoBehaviour
         if (checkIfNodeIsNullByDirection(direction, next))
         {
           keepSearching = false;
-          next.setColor(BoardColor.EMPTY);
-          consoleManager.sendMessageToConsole("Pushing a piece off the board");
-          consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
-          push(direction, nodeList);
+          if (pushPower > numberToPush)
+          {
+            next.setColor(BoardColor.EMPTY);
+            consoleManager.sendMessageToConsole("Pushing a piece off the board");
+            gameManager.addLostPiece();
+            consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
+            push(direction, nodeList);
+          }
+
         }
         nodeList.Add(next);
         next = getNextTileByDirection(direction, next);
@@ -421,7 +424,7 @@ public class Movement : MonoBehaviour
 
   public Node getNextTileByDirection(Direction direction, Node node)
   {
-    Node toReturn = new Node("Error finding next node", BoardColor.EMPTY, false, 0, 0);
+    Node toReturn = null;
 
     //NW
     if (direction == Direction.NW)
@@ -630,13 +633,8 @@ public class Movement : MonoBehaviour
 
   public void moveColumn(Direction direction, List<Node> nodeList)
   {
-    // Turn lostPieceColor = Turn.BLACK;
     Node head = getHeadOfStackByDirection(direction, null, nodeList);
-    // if (head.getColor() == BoardColor.WHITE)
-    // {
-    //   lostPieceColor = Turn.WHITE;
-    // }
-    // gameManager.addLostPiece(lostPieceColor);
+
     while (nodeList.Count > 0)
     {
       head = getHeadOfStackByDirection(direction, null, nodeList);
@@ -656,7 +654,6 @@ public class Movement : MonoBehaviour
       GameObject boardTile = boardManager.getTile(node.getName());
       gameObjectList.Add(boardTile);
     }
-
     moveColumn(direction, nodeList);
     abalone.updateUIBoard();
     InputScript.deselectAllTiles();

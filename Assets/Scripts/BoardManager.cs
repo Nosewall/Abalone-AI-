@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+
+  public GameManager gameManager;
   public ConsoleManager consoleManager;
+  public Movement movement;
+
+  public Abalone abalone;
 
   public static List<GameObject> BoardTiles = new List<GameObject>();
   // Start is called before the first frame update
@@ -236,6 +241,82 @@ public class BoardManager : MonoBehaviour
       }
     }
     return tilesToReturn;
+  }
+
+  public State convertBoardToState()
+  {
+    int black = 14 - gameManager.blackLostPieces;
+    int white = 14 - gameManager.whiteLostPieces;
+    int[,] currentBoardState = convertBoardToArray();
+    int turn = gameManager.getTurnAsInt();
+
+    State newState = new State(black, white, turn, currentBoardState);
+    return newState;
+  }
+
+  public Node[,] convertStateToBoard(State state)
+  {
+    int[,] boardFromState = state.getBoard();
+    Node[,] emptyBoard = BoardBuilder.createBoard();
+    for (int y = 0; y < 9; y++)
+    {
+      for (int x = 0; x < 9; x++)
+      {
+        if (!abalone.isNodeNull(x, y))
+        {
+          emptyBoard[y, x].setColor(fromStateArrayGenerateBoardColor(boardFromState[y, x]));
+        }
+      }
+    }
+    return emptyBoard;
+  }
+
+  public BoardColor fromStateArrayGenerateBoardColor(int color)
+  {
+    switch (color)
+    {
+      case 0:
+        return BoardColor.EMPTY;
+      case 1:
+        return BoardColor.BLACK;
+      case 2:
+        return BoardColor.WHITE;
+    }
+    return BoardColor.EMPTY;
+  }
+
+  public int[,] convertBoardToArray()
+  {
+    int[,] currentBoardState = new int[9, 9];
+    for (int y = 0; y < 9; y++)
+    {
+      for (int x = 0; x < 9; x++)
+      {
+        int piece = 6; // If piece is 6, error has occured
+        if (abalone.isNodeNull(x, y))
+        {
+          piece = 8;
+        }
+        else
+        {
+          switch (abalone.getNode(x, y).getColor())
+          {
+            case BoardColor.BLACK:
+              piece = 1;
+              break;
+            case BoardColor.WHITE:
+              piece = 2;
+              break;
+            case BoardColor.EMPTY:
+              piece = 0;
+              break;
+          }
+        }
+
+        currentBoardState[y, x] = piece;
+      }
+    }
+    return currentBoardState;
   }
 }
 

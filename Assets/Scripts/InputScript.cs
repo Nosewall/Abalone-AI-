@@ -10,6 +10,8 @@ public class InputScript : MonoBehaviour
   public GameManager gameManager;
   public int numberOfSelectedTiles;
   public static List<GameObject> selectedTiles;
+
+  public static bool acceptingInput = true;
   public static GameObject FindGameObjectInChildWithTag(GameObject parent, string tag)
   {
     Transform t = parent.transform;
@@ -70,13 +72,16 @@ public class InputScript : MonoBehaviour
 
   public void tryToSelectTile(GameObject tile)
   {
-    Node node = abalone.getNode(tile.name);
-    consoleManager.sendMessageToConsole("N " + node.getName() + " X " + node.getX() + " Y " + node.getY());
-    BoardColor selectedColor = tile.GetComponent<SingleTileScript>().getTileColor();
-    if (selectedColor.ToString().Equals(GameManager.getCurrentTurn().ToString()))
+    if (acceptingInput)
     {
-      //Color of selected tile matches turn
-      addClickedTile(tile);
+      Node node = abalone.getNode(tile.name);
+      consoleManager.sendMessageToConsole("N " + node.getName() + " X " + node.getX() + " Y " + node.getY());
+      BoardColor selectedColor = tile.GetComponent<SingleTileScript>().getTileColor();
+      if (selectedColor.ToString().Equals(GameManager.getCurrentTurn().ToString()))
+      {
+        //Color of selected tile matches turn
+        addClickedTile(tile);
+      }
     }
   }
   public void moveE()

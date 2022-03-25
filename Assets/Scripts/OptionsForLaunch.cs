@@ -20,17 +20,12 @@ public class OptionsForLaunch : MonoBehaviour
     White
   }
 
-  public enum Players
-  {
-    PVP,
-    PVA,
-    AVA
-  }
+  public bool whiteIsAgent;
+  public bool blackIsAgent;
 
   public static bool initialized = false;
   public static Layout layout;
   public static Color color;
-  public static Players players;
 
   void start()
   {
@@ -39,12 +34,9 @@ public class OptionsForLaunch : MonoBehaviour
       initialized = true;
       layout = Layout.Default;
       color = Color.White;
-      players = Players.PVP;
+      whiteIsAgent = false;
+      blackIsAgent = false;
     }
-  }
-  public void setPlayers(Players newPLayers)
-  {
-    players = newPLayers;
   }
 
   public void setColor(Color newColor)
@@ -62,9 +54,24 @@ public class OptionsForLaunch : MonoBehaviour
     return layout;
   }
 
-  public Players GetPlayers()
+  public void setBlackAgent(bool agent)
   {
-    return players;
+    this.blackIsAgent = agent;
+  }
+
+  public bool isBlackAnAgent()
+  {
+    return blackIsAgent;
+  }
+
+  public void setWhiteAgent(bool agent)
+  {
+    this.whiteIsAgent = agent;
+  }
+
+  public bool isWhiteAnAgent()
+  {
+    return whiteIsAgent;
   }
 
   public Color GetColor()

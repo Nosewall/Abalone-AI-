@@ -106,6 +106,10 @@ public class Abalone : MonoBehaviour
 
   public Node getNode(int x, int y)
   {
+    // if (isNodeNull(x, y))
+    // {
+    //   return null;
+    // }
     return boardState[y, x];
   }
 
