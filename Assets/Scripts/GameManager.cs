@@ -9,7 +9,10 @@ public class GameManager : MonoBehaviour
   public ConsoleManager consoleManager;
   public BoardManager boardManager;
   public OptionsForLaunch gameOptions;
+  public BoardBuilder boardBuilder;
   public Abalone abalone;
+
+  bool gameStarted = false;
 
   public TextMeshProUGUI whiteTurnsUI;
   public TextMeshProUGUI blackTurnsUI;
@@ -42,28 +45,30 @@ public class GameManager : MonoBehaviour
     consoleManager.sendMessageToConsole("Starting!");
   }
 
-  private void FixedUpdate()
-  {
+  // private void FixedUpdate()
+  // {
+  //   if (gameStarted)
+  //   {
+  //     updateTotalTimer();
+  //     if (currentTurn == Turn.BLACK)
+  //     {
+  //       updateBlackTimer();
+  //     }
+  //     else
+  //     {
+  //       updateWhiteTimer();
+  //     }
 
-    updateTotalTimer();
-    if (currentTurn == Turn.BLACK)
-    {
-      updateBlackTimer();
-    }
-    else
-    {
-      updateWhiteTimer();
-    }
-    if (gameOptions.isBlackAnAgent() && currentTurn == Turn.BLACK)
-    {
-      agentTurn();
-    }
-    if (gameOptions.isWhiteAnAgent() && currentTurn == Turn.WHITE)
-    {
-      agentTurn();
-    }
-
-  }
+  //     if (gameOptions.isBlackAnAgent() && currentTurn == Turn.BLACK)
+  //     {
+  //       agentTurn();
+  //     }
+  //     if (gameOptions.isWhiteAnAgent() && currentTurn == Turn.WHITE)
+  //     {
+  //       agentTurn();
+  //     }
+  //   }
+  // }
 
   public void agentTurn()
   {
@@ -72,6 +77,7 @@ public class GameManager : MonoBehaviour
     State newState = agent.turn();
 
     Node[,] newBoard = boardManager.convertStateToBoard(newState);
+    boardBuilder.generateAllNeighbors(newBoard);
     Abalone.boardState = newBoard;
     abalone.updateUIBoard();
     cycleTurn();
@@ -155,8 +161,13 @@ public class GameManager : MonoBehaviour
     blackLostPieces = 0;
     whiteTotalTime = 0;
     blackTotalTime = 0;
+    gameStarted = true;
     whiteTimeUI.SetText("00:00:00");
     blacktimeUI.SetText("00:00:00");
+    if (gameOptions.isBlackAnAgent())
+    {
+      agentTurn();
+    }
 
 
 
@@ -176,6 +187,7 @@ public class GameManager : MonoBehaviour
   public void cycleTurn()
   {
     cycleTurnsRemaining(currentTurn);
+
     if (currentTurn == Turn.BLACK)
     {
       currentTurn = Turn.WHITE;
@@ -186,6 +198,15 @@ public class GameManager : MonoBehaviour
     }
     consoleManager.sendMessageToConsole("Current turn: " + GameManager.getCurrentTurn().ToString());
     checkForWinCondition();
+    checkForAgentTurns();
+  }
+
+  public void checkForAgentTurns()
+  {
+    if (gameOptions.isBlackAnAgent() || gameOptions.isWhiteAnAgent())
+    {
+      agentTurn();
+    }
   }
 
   public void checkForWinCondition()
