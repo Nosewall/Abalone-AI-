@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
     Node[,] newBoard = boardManager.convertStateToBoard(newState);
     Abalone.boardState = newBoard;
     abalone.updateUIBoard();
+    cycleTurn();
   }
 
   public void updateTotalTimer()

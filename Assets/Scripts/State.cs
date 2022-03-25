@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class State
+public class State : IComparable<State>
 {
+
+
   int blackMarbles;
   int whiteMarbles;
   int turn;
@@ -92,5 +94,13 @@ public class State
     return nextStates;
   }
 
+  public int CompareTo(State compareState)
+  {
+    // A null value means that this object is greater.
+    if (compareState == null)
+      return 1;
 
+    else
+      return this.value.CompareTo(compareState.value);
+  }
 }
