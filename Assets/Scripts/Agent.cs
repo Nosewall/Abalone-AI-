@@ -179,41 +179,41 @@ public class Agent : MonoBehaviour
 
 
   private int evaluate(State state)
-  {
-    int sum = 0;
-    for (int i = 0; i < 9; i++)
     {
-      for (int j = 0; j < 9; j++)
-      {
-        if (state.getBoard()[i, j] == side)
+        int sum = 0;
+        for (int i = 0; i < 9; i++)
         {
-          sum += positionValues[i, j];
+            for (int j = 0; j < 9; j++)
+            {
+                if (state.getBoard()[i, j] == side)
+                {
+                    sum += positionValues[i, j];
+                }
+                else if (state.getBoard()[i, j] == opSide)
+                {
+                    sum -= positionValues[i, j];
+                }
+            }
         }
-        else if (state.getBoard()[i, j] == opSide)
-        {
-          sum -= positionValues[i, j];
-        }
-      }
-    }
 
-    if (side == 1)
-    {
-      if (state.getWhite() == 8)
-      {
-        return 1000000;
-      }
-      sum += 10 * (state.getBlacks() - state.getWhite());
+        if (side == state.getTurn())
+        {
+            if (state.getWhite() == 8)
+            {
+                return 1000000;
+            }
+            sum += 10 * (state.getBlacks() - state.getWhite());
+        }
+        else
+        {
+            if (state.getBlacks() == 8)
+            {
+                return -1000000;
+            }
+            sum += 10 * (state.getBlacks() - state.getWhite());
+        }
+        return sum;
     }
-    else
-    {
-      if (state.getBlacks() == 8)
-      {
-        return -1000000;
-      }
-      sum += 10 * (state.getBlacks() - state.getWhite());
-    }
-    return sum;
-  }
 
   static void printBoard(int[,] board)
   //prints the board
