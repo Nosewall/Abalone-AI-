@@ -23,6 +23,11 @@ public class State : IComparable<State>
     nextStates = new List<State>();
   }
 
+  public State getCopy(){
+        return new State(blackMarbles,whiteMarbles,turn,board);
+    }
+
+
   public int getValue()
   {
     return value;
@@ -83,6 +88,30 @@ public class State : IComparable<State>
     }
 
   }
+
+  public int getTurnMarble()
+    {
+        if (turn == 1)
+        {
+            return getBlacks();
+        }
+        else
+        {
+            return getWhite();
+        }
+    }
+
+    public int getOppTurnMarble()
+    {
+        if (turn == 2)
+        {
+            return getBlacks();
+        }
+        else
+        {
+            return getWhite();
+        }
+    }
 
   public void addState(State state)
   {
