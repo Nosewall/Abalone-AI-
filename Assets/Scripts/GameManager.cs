@@ -69,7 +69,7 @@ public class GameManager : MonoBehaviour
   {
     State currentState = boardManager.convertBoardToState();
     agent.setState(currentState);
-    State newState = agent.turn();
+    State newState = agent.turn(currentState);
 
     Node[,] newBoard = boardManager.convertStateToBoard(newState);
     Abalone.boardState = newBoard;
