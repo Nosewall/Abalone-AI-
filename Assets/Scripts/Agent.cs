@@ -93,7 +93,7 @@ public class Agent : MonoBehaviour
     else
     {
       Generator.generate(currentState);
-      toDepth(currentState, 1);
+      toDepth(currentState, 2);
       State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
       return bestMove;
@@ -138,7 +138,7 @@ public class Agent : MonoBehaviour
       currentState.setValue(evaluate(currentState));
       return currentState;
     }
-    int v = largeNegative;
+    int v = Int32.MinValue;
     State localBest = currentState;
 
     currentState.getNextStates().Sort();
@@ -171,7 +171,7 @@ public class Agent : MonoBehaviour
       currentState.setValue(evaluate(currentState));
       return currentState;
     }
-    int v = largePositive;
+    int v = Int32.MaxValue;
     State localBest = null;
 
     foreach (State nextState in currentState.getNextStates())
@@ -276,7 +276,7 @@ public class Agent : MonoBehaviour
       {
         if (state.getBoard()[i, j] == side)
         {
-          sum += positionValues[i, j];
+          sum += positionValues[i, j]*2;
         }
         else if (state.getBoard()[i, j] == opSide)
         {
