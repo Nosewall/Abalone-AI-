@@ -93,7 +93,7 @@ public class Agent : MonoBehaviour
     else
     {
       Generator.generate(currentState);
-      toDepth(currentState, 2);
+      toDepth(currentState, 1);
       State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
       return bestMove;
