@@ -73,8 +73,9 @@ public class GameManager : MonoBehaviour
     State newState = agent.turn(currentState);
 
     Node[,] newBoard = boardManager.convertStateToBoard(newState);
-    boardBuilder.generateAllNeighbors(newBoard);
+    
     Abalone.boardState = newBoard;
+    abalone.boardBuilder.generateAllNeighbors(newBoard);
     abalone.updateUIBoard();
     cycleTurn();
   }
