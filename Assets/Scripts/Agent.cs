@@ -7,8 +7,13 @@ using System.Linq;
 
 public class Agent : MonoBehaviour
 {
+
   Hashtable transpoTable;
   
+
+  int largePositive = Int32.MaxValue;
+  int largeNegative = Int32.MinValue;
+
 
   public static int[,] positionValues =  {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -32,7 +37,6 @@ public class Agent : MonoBehaviour
 
   public Agent(State startState)
   {
-    transpoTable = new Hashtable();
     currentState = startState;
     printBoard(currentState.getBoard());
     if (startState.getTurn() == 1)
@@ -96,6 +100,7 @@ public class Agent : MonoBehaviour
       toDepth(currentState, 1);
       State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
+      setState(bestMove);
       return bestMove;
     }
 
@@ -143,166 +148,102 @@ public class Agent : MonoBehaviour
 
     currentState.getNextStates().Sort();
     foreach (State nextState in currentState.getNextStates())
-    {
-      State s = MinValue(nextState, ref alpha, ref beta, ref best);
-      int min = s.getValue();
-      if (min > v)
-      {
-        v = min;
-        nextState.setValue(v);
-        localBest = nextState;
-      }
 
-      if (v > beta)
-      {
+    {
+
+        if (!currentState.getNextStates().Any())
+        {
+            currentState.setValue(evaluate(currentState));
+            return currentState;
+        }
+        int v = largeNegative;
+        State localBest = currentState;
+
+        currentState.getNextStates().Sort();
+        foreach (State nextState in currentState.getNextStates())
+        {
+            State s = MinValue(nextState, ref alpha, ref beta, ref best);
+            int min = s.getValue();
+            if (min > v)
+            {
+                v = min;
+                nextState.setValue(v);
+                localBest = nextState;
+            }
+
+            if (v > beta)
+            {
+                return localBest;
+            }
+            alpha = Math.Max(alpha, v);
+        }
+
         return localBest;
-      }
-      alpha = Math.Max(alpha, v);
-    }
-
-    return localBest;
-  }
-
-  private State MinValue(State currentState, ref int alpha, ref int beta, ref State best)
-  {
-
-    if (!currentState.getNextStates().Any())
-    {
-      currentState.setValue(evaluate(currentState));
-      return currentState;
     }
     int v = Int32.MaxValue;
     State localBest = null;
 
-    foreach (State nextState in currentState.getNextStates())
+
+    private State MinValue(State currentState, ref int alpha, ref int beta, ref State best)
     {
-      State s = MaxValue(nextState, ref alpha, ref beta, ref best);
 
-      int max = s.getValue();
-      if (max <= v)
-      {
-        v = max;
-        nextState.setValue(v);
-        localBest = nextState;
-      }
+        if (!currentState.getNextStates().Any())
+        {
+            currentState.setValue(evaluate(currentState));
+            return currentState;
+        }
+        int v = largePositive;
+        State localBest = currentState;
 
-      if (v <= alpha)
-      {
+        foreach (State nextState in currentState.getNextStates())
+        {
+            State s = MaxValue(nextState, ref alpha, ref beta, ref best);
+
+            int max = s.getValue();
+            if (max <= v)
+            {
+                v = max;
+                nextState.setValue(v);
+                localBest = nextState;
+            }
+
+            if (v <= alpha)
+            {
+                return localBest;
+            }
+            beta = Math.Min(beta, v);
+        }
         return localBest;
-      }
-      beta = Math.Min(beta, v);
     }
-    return localBest;
-  }
-
-
-
-  /*
-  private State AlphaBeta(State currentState)
-  {
-      State best = new State(0, 0, 0, new int[1, 1]);
-      int alpha = largeNegative;
-      int beta = largePositive;
-      Console.WriteLine(MaxValue(currentState, ref largeNegative,ref  largePositive,ref best));
-      return best;
-  }
-
-
-  private int MaxValue(State currentState, ref int alpha, ref int beta, ref State best)
-  {
-
-      if (!currentState.getNextStates().Any())
-      {
-          return evaluate(currentState);
-      }
-      int v = largeNegative;
-      //currentState.getNextStates().Sort();
-      foreach (State nextState in currentState.getNextStates())
-      {
-          int min = MinValue(nextState,ref alpha,ref beta, ref best);
-          if (min > v)
-          {
-              v = min;
-              best = nextState;
-          }
-
-          if (v > beta)
-          {
-              return v;
-          }
-          alpha = Math.Max(alpha, v);
-      }
-
-      return v;
-  }
-
-  private int MinValue(State currentState,ref  int alpha,ref  int beta, ref State best)
-  {
-
-      if (!currentState.getNextStates().Any())
-      {
-          return evaluate(currentState);
-      }
-      int v = largePositive;
-      foreach (State nextState in currentState.getNextStates())
-      {
-          int max = MaxValue(nextState,ref alpha,ref  beta, ref best);
-
-          if (max <= v)
-          {
-              v = max;
-              best = nextState;
-
-          }
-
-          if (v <= alpha)
-          {
-              return v;
-          }
-          beta = Math.Min(beta, v);
-      }
-      return v;
-  }
-  */
-
 
 
   private int evaluate(State state)
-  {
-    int sum = 0;
-    for (int i = 0; i < 9; i++)
     {
-      for (int j = 0; j < 9; j++)
-      {
-        if (state.getBoard()[i, j] == side)
+        int sum = 0;
+        for (int i = 0; i < 9; i++)
         {
+
           sum += positionValues[i, j]*2;
         }
-        else if (state.getBoard()[i, j] == opSide)
-        {
-          sum -= positionValues[i, j];
-        }
-      }
-    }
 
-    if (side == 1)
-    {
-      if (state.getWhite() == 8)
-      {
-        return 1000000;
-      }
-      sum += 10 * (state.getBlacks() - state.getWhite());
+        if (side == state.getTurn())
+        {
+            if (state.getWhite() == 8)
+            {
+                return 1000000;
+            }
+            sum += 10 * (state.getBlacks() - state.getWhite());
+        }
+        else
+        {
+            if (state.getBlacks() == 8)
+            {
+                return -1000000;
+            }
+            sum += 10 * (state.getBlacks() - state.getWhite());
+        }
+        return sum;
     }
-    else
-    {
-      if (state.getBlacks() == 8)
-      {
-        return -1000000;
-      }
-      sum += 10 * (state.getBlacks() - state.getWhite());
-    }
-    return sum;
-  }
 
   static void printBoard(int[,] board)
   //prints the board

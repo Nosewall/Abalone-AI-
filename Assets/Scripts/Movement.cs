@@ -145,7 +145,6 @@ public class Movement : MonoBehaviour
   //Checks if all spaces are empty for a Side Step.
   public Boolean checkIsSpaceEmptySideStep(Direction d)
   {
-    Boolean spaceIsEmpty = false;
     List<Node> nodeList = new List<Node>();
 
     nodeList = nodeList.OrderBy(x => x.getX()).ToList();
@@ -156,79 +155,8 @@ public class Movement : MonoBehaviour
       nodeList.Add(abalone.getNode(tile));
     }
 
-    //NW
-    if (d == Direction.NW)
-    {
-      foreach (Node node in nodeList)
-      {
-        spaceIsEmpty = node.getNWNeighbor() != null && node.getNWNeighbor().getColor() == BoardColor.EMPTY;
-        if (!spaceIsEmpty)
-        {
-          break;
-        }
-      }
-    }
-    //NE
-    if (d == Direction.NE)
-    {
-      foreach (Node node in nodeList)
-      {
-        spaceIsEmpty = node.getNENeighbor() != null && node.getNENeighbor().getColor() == BoardColor.EMPTY;
-        if (!spaceIsEmpty)
-        {
-          break;
-        }
-      }
-    }
-    //E
-    if (d == Direction.E)
-    {
-      foreach (Node node in nodeList)
-      {
-        spaceIsEmpty = node.getENeighbor() != null && node.getENeighbor().getColor() == BoardColor.EMPTY;
-        if (!spaceIsEmpty)
-        {
-          break;
-        }
-      }
-    }
-    //SE
-    if (d == Direction.SE)
-    {
-      foreach (Node node in nodeList)
-      {
-        spaceIsEmpty = node.getSENeighbor() != null && node.getSENeighbor().getColor() == BoardColor.EMPTY;
-        if (!spaceIsEmpty)
-        {
-          break;
-        }
-      }
-    }
-    //SW
-    if (d == Direction.SW)
-    {
-      foreach (Node node in nodeList)
-      {
-        spaceIsEmpty = node.getSWNeighbor() != null && node.getSWNeighbor().getColor() == BoardColor.EMPTY;
-        if (!spaceIsEmpty)
-        {
-          break;
-        }
-      }
-    }
-    //W
-    if (d == Direction.W)
-    {
-      foreach (Node node in nodeList)
-      {
-        spaceIsEmpty = node.getWNeighbor() != null && node.getWNeighbor().getColor() == BoardColor.EMPTY;
-        if (!spaceIsEmpty)
-        {
-          break;
-        }
-      }
-    }
-    return spaceIsEmpty;
+    Node head = getHeadOfStackByDirection(d);
+    return getNextTileByDirection(d, head).getColor() == BoardColor.EMPTY;
   }
 
   //Checks if all spaces are empty for a column move.
@@ -529,6 +457,7 @@ public class Movement : MonoBehaviour
         move(direction);
         abalone.updateUIBoard();
         InputScript.deselectAllTiles();
+        gameManager.cycleTurn();
         return;
       }
       else
@@ -626,8 +555,6 @@ public class Movement : MonoBehaviour
     {
       node.setColor(color);
     }
-
-    gameManager.cycleTurn();
 
   }
 
