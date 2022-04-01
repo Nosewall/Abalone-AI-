@@ -6,6 +6,7 @@ using System.Timers;
 
 public class GameManager : MonoBehaviour
 {
+  public BoardBuilder boardBuilder;
   public ConsoleManager consoleManager;
   public BoardManager boardManager;
   public OptionsForLaunch gameOptions;
@@ -74,11 +75,11 @@ public class GameManager : MonoBehaviour
   {
     State currentState = boardManager.convertBoardToState();
     agent.setState(currentState);
-    State newState = agent.turn();
+    State newState = agent.turn(currentState);
 
     Node[,] newBoard = boardManager.convertStateToBoard(newState);
-    boardBuilder.generateAllNeighbors(newBoard);
     Abalone.boardState = newBoard;
+    abalone.boardBuilder.generateAllNeighbors(newBoard);
     abalone.updateUIBoard();
     cycleTurn();
   }

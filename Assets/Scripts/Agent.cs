@@ -7,8 +7,13 @@ using System.Linq;
 
 public class Agent : MonoBehaviour
 {
+
+  Hashtable transpoTable;
+  
+
   int largePositive = Int32.MaxValue;
   int largeNegative = Int32.MinValue;
+
 
   public static int[,] positionValues =  {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -65,8 +70,26 @@ public class Agent : MonoBehaviour
     printBoard(nextBoard.getBoard());
     return nextBoard;
   }
-  public State turn()
+  public State turn(State startState)
   {
+    int largePositive = Int32.MaxValue;
+    int largeNegative = Int32.MinValue;
+    currentState = startState;
+    printBoard(currentState.getBoard());
+    if (startState.getTurn() == 1)
+    {
+      side = 1;
+      opSide = 2;
+      firstTurn = false;
+    }
+    else
+    {
+      side = 2;
+      opSide = 1;
+      firstTurn = false;
+    }
+
+    firstTurn = false;
     if (firstTurn)
     {
       return turnOne();
@@ -74,8 +97,8 @@ public class Agent : MonoBehaviour
     else
     {
       Generator.generate(currentState);
-      toDepth(currentState, testDepth);
-      State bestMove = AlphaBeta(currentState).getCopy();
+      toDepth(currentState, 1);
+      State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
       setState(bestMove);
       return bestMove;
@@ -102,9 +125,9 @@ public class Agent : MonoBehaviour
   private State AlphaBeta(State currentState)
   {
     State best = new State(0, 0, 0, new int[1, 1]);
-    int alpha = largeNegative;
-    int beta = largePositive;
-    State v = MaxValue(currentState, ref largeNegative, ref largePositive, ref best);
+    int alpha = Int32.MinValue;
+    int beta = Int32.MaxValue;
+    State v = MaxValue(currentState, ref alpha, ref beta, ref best);
     printBoard(v.getBoard());
     Console.WriteLine(v.getValue());
     return (v);
@@ -113,6 +136,19 @@ public class Agent : MonoBehaviour
 
 
   private State MaxValue(State currentState, ref int alpha, ref int beta, ref State best)
+  {
+
+    if (!currentState.getNextStates().Any())
+    {
+      currentState.setValue(evaluate(currentState));
+      return currentState;
+    }
+    int v = Int32.MinValue;
+    State localBest = currentState;
+
+    currentState.getNextStates().Sort();
+    foreach (State nextState in currentState.getNextStates())
+
     {
 
         if (!currentState.getNextStates().Any())
@@ -144,6 +180,9 @@ public class Agent : MonoBehaviour
 
         return localBest;
     }
+    int v = Int32.MaxValue;
+    State localBest = null;
+
 
     private State MinValue(State currentState, ref int alpha, ref int beta, ref State best)
     {
@@ -183,17 +222,8 @@ public class Agent : MonoBehaviour
         int sum = 0;
         for (int i = 0; i < 9; i++)
         {
-            for (int j = 0; j < 9; j++)
-            {
-                if (state.getBoard()[i, j] == side)
-                {
-                    sum += positionValues[i, j];
-                }
-                else if (state.getBoard()[i, j] == opSide)
-                {
-                    sum -= positionValues[i, j];
-                }
-            }
+
+          sum += positionValues[i, j]*2;
         }
 
         if (side == state.getTurn())
