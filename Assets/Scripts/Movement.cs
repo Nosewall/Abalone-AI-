@@ -266,7 +266,6 @@ public class Movement : MonoBehaviour
           {
             next.setColor(BoardColor.EMPTY);
             consoleManager.sendMessageToConsole("Pushing a piece off the board");
-            gameManager.addLostPiece();
             consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
             push(direction, nodeList);
             canPush = true;

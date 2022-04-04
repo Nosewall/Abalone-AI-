@@ -10,6 +10,8 @@ public class Abalone : MonoBehaviour
   public BoardManager boardManager;
   public static Node[,] boardState;
 
+  public GameManager gameManager;
+
   public void generateBoard()
   {
     boardState = BoardBuilder.createBoard();
@@ -21,6 +23,8 @@ public class Abalone : MonoBehaviour
   //Use for each state change.
   public void updateUIBoard()
   {
+    int whitePieces = 0;
+    int blackPieces = 0;
     foreach (GameObject UIBoardTile in BoardManager.BoardTiles)
     {
       string UITileName = UIBoardTile.name;
@@ -32,12 +36,25 @@ public class Abalone : MonoBehaviour
           if (backEndTileName.Equals(UITileName))
           {
             boardManager.changeTileColor(UIBoardTile, backEndTile.getColor());
+            if (backEndTile.getColor() == BoardColor.BLACK)
+            {
+              blackPieces++;
+            }
+            else if (backEndTile.getColor() == BoardColor.WHITE)
+            {
+              whitePieces++;
+            }
             break;
           }
         }
 
       }
     }
+
+    gameManager.setBlackLostPieces(14 - blackPieces);
+    gameManager.setWhiteLostPieces(14 - whitePieces);
+    gameManager.updateLostPieces();
+
   }
 
   //Take game state from the front end and push it to the back end
