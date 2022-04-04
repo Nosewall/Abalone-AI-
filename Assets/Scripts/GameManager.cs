@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System.Timers;
+using System.Threading;
 
 public class GameManager : MonoBehaviour
 {
@@ -33,6 +34,8 @@ public class GameManager : MonoBehaviour
   public int whiteTurnsLeft;
   public int blackTurnsLeft;
 
+  public static bool agentTakingTurnCurrently = false;
+
 
 
   public static Turn currentTurn;
@@ -55,6 +58,7 @@ public class GameManager : MonoBehaviour
     {
       updateWhiteTimer();
     }
+
     if (gameOptions.isBlackAnAgent() && currentTurn == Turn.BLACK)
     {
       agentTurn();
@@ -78,6 +82,7 @@ public class GameManager : MonoBehaviour
     abalone.boardBuilder.generateAllNeighbors(newBoard);
     abalone.updateUIBoard();
     cycleTurn();
+    agentTakingTurnCurrently = false;
   }
 
   public void updateTotalTimer()
@@ -213,20 +218,10 @@ public class GameManager : MonoBehaviour
     return 2;
   }
 
-  public void addLostPiece()
+  public void updateLostPieces()
   {
-    consoleManager.sendMessageToConsole("Adding lost Piece");
-    switch (currentTurn)
-    {
-      case Turn.BLACK:
-        whiteLostPieces++;
-        whiteLostPiecesUI.SetText(whiteLostPieces.ToString());
-        break;
-      case Turn.WHITE:
-        blackLostPieces++;
-        blackLostPiecesUI.SetText(blackLostPieces.ToString());
-        break;
-    }
+    whiteLostPiecesUI.SetText(whiteLostPieces.ToString());
+    blackLostPiecesUI.SetText(blackLostPieces.ToString());
   }
 
   public void cycleTurnsRemaining(Turn player)
@@ -250,6 +245,15 @@ public class GameManager : MonoBehaviour
   public void getTime()
   {
 
+  }
+
+  public void setWhiteLostPieces(int newPieceCount)
+  {
+    whiteLostPieces = newPieceCount;
+  }
+  public void setBlackLostPieces(int newPieceCount)
+  {
+    blackLostPieces = newPieceCount;
   }
 
 }
