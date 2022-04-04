@@ -7,12 +7,7 @@ using System.Linq;
 
 public class Agent : MonoBehaviour
 {
-
   Hashtable transpoTable;
-  
-
-  int largePositive = Int32.MaxValue;
-  int largeNegative = Int32.MinValue;
 
 
   public static int[,] positionValues =  {
@@ -34,9 +29,13 @@ public class Agent : MonoBehaviour
   int opSide;
 
   bool firstTurn;
+  int numberOfTiles;
+  int numberOfOpponentTiles;
+  int numberOfCombinationsChecked;
 
   public Agent(State startState)
   {
+    transpoTable = new Hashtable();
     currentState = startState;
     printBoard(currentState.getBoard());
     if (startState.getTurn() == 1)
@@ -53,6 +52,9 @@ public class Agent : MonoBehaviour
     }
     //!!!REMOVE AFTER TESTING
     firstTurn = false;
+
+    numberOfOpponentTiles = getNumberOfColoredPieces(startState, opSide);
+    numberOfTiles = getNumberOfColoredPieces(startState, side);
   }
 
   public void setState(State s)
@@ -72,15 +74,13 @@ public class Agent : MonoBehaviour
   }
   public State turn(State startState)
   {
-    int largePositive = Int32.MaxValue;
-    int largeNegative = Int32.MinValue;
     currentState = startState;
     printBoard(currentState.getBoard());
     if (startState.getTurn() == 1)
     {
       side = 1;
       opSide = 2;
-      firstTurn = false;
+      firstTurn = true;
     }
     else
     {
@@ -100,22 +100,26 @@ public class Agent : MonoBehaviour
       toDepth(currentState, 1);
       State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
-      setState(bestMove);
+      if (currentState.getBoard().Cast<int>().SequenceEqual(bestMove.getBoard().Cast<int>()))
+      {
+        return currentState.getNextStates()[0];
+      }
       return bestMove;
-    }
 
+    }
 
   }
 
   public void toDepth(State currentState, int depth)
   {
 
-    if (depth == 0)
+    if (depth <= 0)
     {
       return;
     }
     foreach (State s in currentState.getNextStates())
     {
+      numberOfCombinationsChecked++;
       Generator.generate(s);
       toDepth(s, depth - 1);
 
@@ -144,106 +148,212 @@ public class Agent : MonoBehaviour
       return currentState;
     }
     int v = Int32.MinValue;
-    State localBest = currentState;
+    State localBest = currentState.getNextStates()[0];
 
     currentState.getNextStates().Sort();
     foreach (State nextState in currentState.getNextStates())
-
     {
+      State s = MinValue(nextState, ref alpha, ref beta, ref best);
+      int min = s.getValue();
+      if (min > v)
+      {
+        v = min;
+        nextState.setValue(v);
+        localBest = nextState;
+      }
 
-        if (!currentState.getNextStates().Any())
-        {
-            currentState.setValue(evaluate(currentState));
-            return currentState;
-        }
-        int v = largeNegative;
-        State localBest = currentState;
-
-        currentState.getNextStates().Sort();
-        foreach (State nextState in currentState.getNextStates())
-        {
-            State s = MinValue(nextState, ref alpha, ref beta, ref best);
-            int min = s.getValue();
-            if (min > v)
-            {
-                v = min;
-                nextState.setValue(v);
-                localBest = nextState;
-            }
-
-            if (v > beta)
-            {
-                return localBest;
-            }
-            alpha = Math.Max(alpha, v);
-        }
-
+      if (v > beta)
+      {
         return localBest;
+      }
+      alpha = Math.Max(alpha, v);
+    }
+
+    return localBest;
+  }
+
+  private State MinValue(State currentState, ref int alpha, ref int beta, ref State best)
+  {
+
+    if (!currentState.getNextStates().Any())
+    {
+      currentState.setValue(evaluate(currentState));
+      return currentState;
     }
     int v = Int32.MaxValue;
-    State localBest = null;
+    State localBest = currentState.getNextStates()[0];
 
-
-    private State MinValue(State currentState, ref int alpha, ref int beta, ref State best)
+    foreach (State nextState in currentState.getNextStates())
     {
+      State s = MaxValue(nextState, ref alpha, ref beta, ref best);
 
-        if (!currentState.getNextStates().Any())
-        {
-            currentState.setValue(evaluate(currentState));
-            return currentState;
-        }
-        int v = largePositive;
-        State localBest = currentState;
+      int max = s.getValue();
+      if (max <= v)
+      {
+        v = max;
+        nextState.setValue(v);
+        localBest = nextState;
+      }
 
-        foreach (State nextState in currentState.getNextStates())
-        {
-            State s = MaxValue(nextState, ref alpha, ref beta, ref best);
-
-            int max = s.getValue();
-            if (max <= v)
-            {
-                v = max;
-                nextState.setValue(v);
-                localBest = nextState;
-            }
-
-            if (v <= alpha)
-            {
-                return localBest;
-            }
-            beta = Math.Min(beta, v);
-        }
+      if (v <= alpha)
+      {
         return localBest;
+      }
+      beta = Math.Min(beta, v);
     }
+    return localBest;
+  }
 
 
+
+  /*
+  private State AlphaBeta(State currentState)
+  {
+      State best = new State(0, 0, 0, new int[1, 1]);
+      int alpha = largeNegative;
+      int beta = largePositive;
+      Console.WriteLine(MaxValue(currentState, ref largeNegative,ref  largePositive,ref best));
+      return best;
+  }
+
+
+  private int MaxValue(State currentState, ref int alpha, ref int beta, ref State best)
+  {
+
+      if (!currentState.getNextStates().Any())
+      {
+          return evaluate(currentState);
+      }
+      int v = largeNegative;
+      //currentState.getNextStates().Sort();
+      foreach (State nextState in currentState.getNextStates())
+      {
+          int min = MinValue(nextState,ref alpha,ref beta, ref best);
+          if (min > v)
+          {
+              v = min;
+              best = nextState;
+          }
+
+          if (v > beta)
+          {
+              return v;
+          }
+          alpha = Math.Max(alpha, v);
+      }
+
+      return v;
+  }
+
+  private int MinValue(State currentState,ref  int alpha,ref  int beta, ref State best)
+  {
+
+      if (!currentState.getNextStates().Any())
+      {
+          return evaluate(currentState);
+      }
+      int v = largePositive;
+      foreach (State nextState in currentState.getNextStates())
+      {
+          int max = MaxValue(nextState,ref alpha,ref  beta, ref best);
+
+          if (max <= v)
+          {
+              v = max;
+              best = nextState;
+
+          }
+
+          if (v <= alpha)
+          {
+              return v;
+          }
+          beta = Math.Min(beta, v);
+      }
+      return v;
+  }
+  */
+
+
+  //New evaluation function that checks for pushing pieces off, and saving their own pieces
   private int evaluate(State state)
+  {
+    int newNumberOfOpponentsPieces = getNumberOfColoredPieces(state, opSide);
+    int newNumberOfColoredPieces = getNumberOfColoredPieces(state, side);
+    int sum = 0;
+
+    if (newNumberOfColoredPieces < numberOfTiles)
     {
-        int sum = 0;
-        for (int i = 0; i < 9; i++)
-        {
-
-          sum += positionValues[i, j]*2;
-        }
-
-        if (side == state.getTurn())
-        {
-            if (state.getWhite() == 8)
-            {
-                return 1000000;
-            }
-            sum += 10 * (state.getBlacks() - state.getWhite());
-        }
-        else
-        {
-            if (state.getBlacks() == 8)
-            {
-                return -1000000;
-            }
-            sum += 10 * (state.getBlacks() - state.getWhite());
-        }
-        return sum;
+      sum -= 1000;
     }
+    if (newNumberOfOpponentsPieces < numberOfOpponentTiles)
+    {
+      sum += 1000;
+    }
+
+    if (newNumberOfColoredPieces == 8)
+    {
+      sum -= 10000;
+    }
+    if (newNumberOfOpponentsPieces == 8)
+    {
+      sum += 10000;
+    }
+
+    for (int i = 0; i < 9; i++)
+    {
+      for (int j = 0; j < 9; j++)
+      {
+        if (state.getBoard()[i, j] == side)
+        {
+          sum += positionValues[i, j] * 2;
+        }
+        else if (state.getBoard()[i, j] == opSide)
+        {
+          sum -= positionValues[i, j];
+        }
+      }
+    }
+
+    return sum;
+  }
+
+  // private int evaluate(State state)
+  // {
+  //   int sum = 0;
+  //   for (int i = 0; i < 9; i++)
+  //   {
+  //     for (int j = 0; j < 9; j++)
+  //     {
+  //       if (state.getBoard()[i, j] == side)
+  //       {
+  //         sum += positionValues[i, j] * 2;
+  //       }
+  //       else if (state.getBoard()[i, j] == opSide)
+  //       {
+  //         sum -= positionValues[i, j];
+  //       }
+  //     }
+  //   }
+
+  //   if (side == 1)
+  //   {
+  //     if (state.getWhite() == 8)
+  //     {
+  //       return 1000000;
+  //     }
+  //     sum += 10 * (state.getBlacks() - state.getWhite());
+  //   }
+  //   else
+  //   {
+  //     if (state.getBlacks() == 8)
+  //     {
+  //       return -1000000;
+  //     }
+  //     sum += 10 * (state.getBlacks() - state.getWhite());
+  //   }
+  //   return sum;
+  // }
 
   static void printBoard(int[,] board)
   //prints the board
@@ -265,6 +375,22 @@ public class Agent : MonoBehaviour
       Console.WriteLine();
     }
     Console.WriteLine();
+  }
+
+  public int getNumberOfColoredPieces(State state, int color)
+  {
+    int count = 0;
+    for (int i = 0; i < 9; i++)
+    {
+      for (int j = 0; j < 9; j++)
+      {
+        if (state.getBoard()[i, j] == color)
+        {
+          count++;
+        }
+      }
+    }
+    return count;
   }
 
 }

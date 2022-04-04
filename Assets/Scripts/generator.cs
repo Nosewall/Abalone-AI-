@@ -14,7 +14,6 @@ public class Generator
     foreach (int[,] board in boardList)
     {
       var equal = board.Cast<int>().SequenceEqual(inputBoard.Cast<int>());
-
       if (equal)
       {
         return true;
@@ -103,251 +102,261 @@ public class Generator
 
   static Tuple<List<int[,]>, List<string>> checkSurrounding(int[,] board, int x, int y, int turnInt, int opponentInt, ref List<int[,]> BoardList, ref List<string> MoveList, List<State> states, State currentState)
   {
-    //checks the surrounding spaces of a marble to determine if there are possible moves and generate them
-    List<State> stateList = states;
-    List<int[,]> nextPossibleBoards = BoardList;
-    List<string> nextMoves = MoveList;
 
-    // goes through the 6 possible movement directions excluding 
-    for (int i = -1; i <= 1; i++)
+    try
     {
-      for (int j = -1; j <= 1; j++)
+      //checks the surrounding spaces of a marble to determine if there are possible moves and generate them
+      List<State> stateList = states;
+      List<int[,]> nextPossibleBoards = BoardList;
+      List<string> nextMoves = MoveList;
+
+      // goes through the 6 possible movement directions excluding 
+      for (int i = -1; i <= 1; i++)
       {
-        if (i != j)
+        for (int j = -1; j <= 1; j++)
         {
-          int nextX = x + i;
-          int nextY = y + j;
-          if (inBounds(nextX, nextY, board) && board[x, y] == turnInt)
+          if (i != j)
           {
-            if (board[nextX, nextY] == 0) // checks if the next position on the board is free
+            int nextX = x + i;
+            int nextY = y + j;
+            if (inBounds(nextX, nextY, board) && board[x, y] == turnInt)
             {
-
-              singlemoves(board, nextX, nextY, x, y, i, j, ref nextPossibleBoards, ref nextMoves, ref stateList, currentState);
-
-              //if a single move into a blank space is done then checks if there are other marbles that can be used to side step
-              for (int i1 = -1; i1 <= 1; i1++)
+              if (board[nextX, nextY] == 0) // checks if the next position on the board is free
               {
-                for (int j1 = -1; j1 <= 1; j1++)
+
+                singlemoves(board, nextX, nextY, x, y, i, j, ref nextPossibleBoards, ref nextMoves, ref stateList, currentState);
+
+                //if a single move into a blank space is done then checks if there are other marbles that can be used to side step
+                for (int i1 = -1; i1 <= 1; i1++)
                 {
-                  if (i1 != j1)
+                  for (int j1 = -1; j1 <= 1; j1++)
                   {
-                    if (inBounds(x + i1, y + j1, board) && inBounds(x + i1 + i, y + j1 + j, board) && board[x + i1, y + j1] == turnInt && board[x + i1 + i, y + j1 + j] == 0)
+                    if (i1 != j1)
                     {
-                      //checks if a double side step is possible and generates the move and board
-                      int[,] newDoubleBoard = new int[9, 9];
-                      Array.Copy(board, 0, newDoubleBoard, 0, board.Length);
-
-                      newDoubleBoard[nextX, nextY] = newDoubleBoard[x, y];
-                      newDoubleBoard[x + i1 + i, y + j1 + j] = turnInt;
-                      newDoubleBoard[x, y] = 0;
-                      newDoubleBoard[x + i1, y + j1] = 0;
-
-                      string firstPos = positionClassifier(x, y);
-                      string secondPos = positionClassifier(x + i1, y + j1);
-                      string doubleMove = "";
-
-                      if (x <= (x + i1))
+                      if (inBounds(x + i1, y + j1, board) && inBounds(x + i1 + i, y + j1 + j, board) && board[x + i1, y + j1] == turnInt && board[x + i1 + i, y + j1 + j] == 0)
                       {
-                        doubleMove = "s-" + firstPos + "-" + secondPos + "-" + moveClassifier(i, j);
-                        if (x == (x + i1))
+                        //checks if a double side step is possible and generates the move and board
+                        int[,] newDoubleBoard = new int[9, 9];
+                        Array.Copy(board, 0, newDoubleBoard, 0, board.Length);
+
+                        newDoubleBoard[nextX, nextY] = newDoubleBoard[x, y];
+                        newDoubleBoard[x + i1 + i, y + j1 + j] = turnInt;
+                        newDoubleBoard[x, y] = 0;
+                        newDoubleBoard[x + i1, y + j1] = 0;
+
+                        string firstPos = positionClassifier(x, y);
+                        string secondPos = positionClassifier(x + i1, y + j1);
+                        string doubleMove = "";
+
+                        if (x <= (x + i1))
                         {
-                          if (y <= y + j1)
+                          doubleMove = "s-" + firstPos + "-" + secondPos + "-" + moveClassifier(i, j);
+                          if (x == (x + i1))
                           {
-                            doubleMove = "s-" + firstPos + "-" + secondPos + "-" + moveClassifier(i, j);
-                          }
-                          else
-                          {
-                            doubleMove = "s-" + secondPos + "-" + firstPos + "-" + moveClassifier(i, j);
-                          }
-                        }
-                      }
-                      else
-                      {
-                        doubleMove = "s-" + secondPos + "-" + firstPos + "-" + moveClassifier(i, j);
-                      }
-
-
-
-                      if (!listContains(ref nextPossibleBoards, newDoubleBoard))
-                      {
-                        nextMoves.Add(doubleMove);
-                        nextPossibleBoards.Add(newDoubleBoard);
-                        currentState.addState(currentState.getNextTurnCopy(newDoubleBoard));
-
-                      }
-
-                      //if a double sidestep works then checks for an addition triple side step
-                      if (inBounds(x + i1 * 2, y + j1 * 2, board) && inBounds(x + i1 * 2 + i, y + j1 * 2 + j, board)
-                      && board[x + i1 * 2, y + j1 * 2] == turnInt && board[x + i1 * 2 + i, y + j1 * 2 + j] == 0)
-                      {
-                        int[,] newTripleBoard = new int[9, 9];
-                        Array.Copy(board, 0, newTripleBoard, 0, board.Length);
-
-                        newTripleBoard[nextX, nextY] = newTripleBoard[x, y];
-                        newTripleBoard[x + i1 + i, y + j1 + j] = turnInt;
-                        newTripleBoard[x + i1 * 2 + i, y + j1 * 2 + j] = turnInt;
-                        newTripleBoard[x + i1 * 2, y + j1 * 2] = 0;
-                        newTripleBoard[x, y] = 0;
-                        newTripleBoard[x + i1, y + j1] = 0;
-
-                        string fPos = positionClassifier(x, y);
-                        string sPos = positionClassifier(x + i1 * 2, y + j1 * 2);
-                        string triplemoves = "";
-
-                        if (x <= (x + i1 * 2))
-                        {
-                          triplemoves = "s-" + fPos + "-" + sPos + "-" + moveClassifier(i, j);
-                          if (x == (x + i1 * 2))
-                          {
-                            if (y <= y + j1 * 2)
+                            if (y <= y + j1)
                             {
-                              triplemoves = "s-" + fPos + "-" + sPos + "-" + moveClassifier(i, j);
+                              doubleMove = "s-" + firstPos + "-" + secondPos + "-" + moveClassifier(i, j);
                             }
                             else
                             {
-                              triplemoves = "s-" + sPos + "-" + fPos + "-" + moveClassifier(i, j);
+                              doubleMove = "s-" + secondPos + "-" + firstPos + "-" + moveClassifier(i, j);
                             }
                           }
                         }
                         else
                         {
-                          triplemoves = "s-" + sPos + "-" + fPos + "-" + moveClassifier(i, j);
+                          doubleMove = "s-" + secondPos + "-" + firstPos + "-" + moveClassifier(i, j);
                         }
 
 
 
-
-                        if (!listContains(ref nextPossibleBoards, newTripleBoard))
+                        if (!listContains(ref nextPossibleBoards, newDoubleBoard))
                         {
-                          nextMoves.Add(triplemoves);
-                          nextPossibleBoards.Add(newTripleBoard);
-                          currentState.addState(currentState.getNextTurnCopy(newTripleBoard));
+                          nextMoves.Add(doubleMove);
+                          nextPossibleBoards.Add(newDoubleBoard);
+                          currentState.addState(currentState.getNextTurnCopy(newDoubleBoard));
 
+                        }
+
+                        //if a double sidestep works then checks for an addition triple side step
+                        if (inBounds(x + i1 * 2, y + j1 * 2, board) && inBounds(x + i1 * 2 + i, y + j1 * 2 + j, board)
+                        && board[x + i1 * 2, y + j1 * 2] == turnInt && board[x + i1 * 2 + i, y + j1 * 2 + j] == 0)
+                        {
+                          int[,] newTripleBoard = new int[9, 9];
+                          Array.Copy(board, 0, newTripleBoard, 0, board.Length);
+
+                          newTripleBoard[nextX, nextY] = newTripleBoard[x, y];
+                          newTripleBoard[x + i1 + i, y + j1 + j] = turnInt;
+                          newTripleBoard[x + i1 * 2 + i, y + j1 * 2 + j] = turnInt;
+                          newTripleBoard[x + i1 * 2, y + j1 * 2] = 0;
+                          newTripleBoard[x, y] = 0;
+                          newTripleBoard[x + i1, y + j1] = 0;
+
+                          string fPos = positionClassifier(x, y);
+                          string sPos = positionClassifier(x + i1 * 2, y + j1 * 2);
+                          string triplemoves = "";
+
+                          if (x <= (x + i1 * 2))
+                          {
+                            triplemoves = "s-" + fPos + "-" + sPos + "-" + moveClassifier(i, j);
+                            if (x == (x + i1 * 2))
+                            {
+                              if (y <= y + j1 * 2)
+                              {
+                                triplemoves = "s-" + fPos + "-" + sPos + "-" + moveClassifier(i, j);
+                              }
+                              else
+                              {
+                                triplemoves = "s-" + sPos + "-" + fPos + "-" + moveClassifier(i, j);
+                              }
+                            }
+                          }
+                          else
+                          {
+                            triplemoves = "s-" + sPos + "-" + fPos + "-" + moveClassifier(i, j);
+                          }
+
+
+
+
+                          if (!listContains(ref nextPossibleBoards, newTripleBoard))
+                          {
+                            nextMoves.Add(triplemoves);
+                            nextPossibleBoards.Add(newTripleBoard);
+                            currentState.addState(currentState.getNextTurnCopy(newTripleBoard));
+
+                          }
                         }
                       }
                     }
                   }
                 }
+
+                int doubleX = x - i;
+                int doubleY = y - j;
+
+                //double inline moves
+                if (inBounds(doubleX, doubleY, board) && board[doubleX, doubleY] == turnInt)
+                {
+                  int[,] newDoubleBoard = new int[9, 9];
+                  Array.Copy(board, 0, newDoubleBoard, 0, board.Length);
+
+                  newDoubleBoard[nextX, nextY] = newDoubleBoard[x, y];
+                  newDoubleBoard[x - i, y - j] = 0;
+                  string doubleMove = "i-" + positionClassifier(doubleX, doubleY) + "-" + moveClassifier(i, j);
+
+
+
+
+                  nextMoves.Add(doubleMove);
+                  nextPossibleBoards.Add(newDoubleBoard);
+                  currentState.addState(currentState.getNextTurnCopy(newDoubleBoard));
+
+
+
+
+                  int tripleX = x - i * 2;
+                  int tripleY = y - j * 2;
+
+                  //triple inline moves
+                  if (inBounds(tripleX, tripleY, board) && board[tripleX, tripleY] == turnInt)
+                  {
+                    int[,] newTripleBoard = new int[9, 9];
+                    Array.Copy(board, 0, newTripleBoard, 0, board.Length);
+
+                    newTripleBoard[nextX, nextY] = newTripleBoard[x, y];
+                    newTripleBoard[tripleX, tripleY] = 0;
+                    string triplemoves = "i-" + positionClassifier(tripleX, tripleY) + "-" + moveClassifier(i, j);
+
+
+
+                    nextMoves.Add(triplemoves);
+                    nextPossibleBoards.Add(newTripleBoard);
+
+                    currentState.addState(currentState.getNextTurnCopy(newTripleBoard));
+
+
+                  }
+                }
+
               }
 
-              int doubleX = x - i;
-              int doubleY = y - j;
 
-              //double inline moves
-              if (inBounds(doubleX, doubleY, board) && board[doubleX, doubleY] == turnInt)
+              //sumitos 
+              if (board[nextX, nextY] == opponentInt)
               {
-                int[,] newDoubleBoard = new int[9, 9];
-                Array.Copy(board, 0, newDoubleBoard, 0, board.Length);
 
-                newDoubleBoard[nextX, nextY] = newDoubleBoard[x, y];
-                newDoubleBoard[x - i, y - j] = 0;
-                string doubleMove = "i-" + positionClassifier(doubleX, doubleY) + "-" + moveClassifier(i, j);
-
-
-
-
-                nextMoves.Add(doubleMove);
-                nextPossibleBoards.Add(newDoubleBoard);
-                currentState.addState(currentState.getNextTurnCopy(newDoubleBoard));
-
-
-
-
-                int tripleX = x - i * 2;
-                int tripleY = y - j * 2;
-
-                //triple inline moves
-                if (inBounds(tripleX, tripleY, board) && board[tripleX, tripleY] == turnInt)
+                int doubleSumitoX = x - i;
+                int doubleSumitoY = y - j;
+                //2 marble sumito
+                if (inBounds(doubleSumitoX, doubleSumitoY, board) && board[doubleSumitoX, doubleSumitoY] == turnInt
+                && sumito(x + i * 2, y + j * 2, board, turnInt, opponentInt))
                 {
+                  int[,] newDoubleBoard = new int[9, 9];
+                  Array.Copy(board, 0, newDoubleBoard, 0, board.Length);
+
+                  newDoubleBoard[nextX, nextY] = newDoubleBoard[x, y];
+                  if (inBounds(x + i * 2, y + j * 2, board))
+                  {
+                    newDoubleBoard[x + i * 2, y + j * 2] = opponentInt;
+                  }
+                  newDoubleBoard[doubleSumitoX, doubleSumitoY] = 0;
+                  string doubleMove = "i-" + positionClassifier(doubleSumitoX, doubleSumitoY) + "-" + moveClassifier(i, j);
+
+
+                  nextPossibleBoards.Add(newDoubleBoard);
+                  currentState.addState(currentState.getNextTurnReduceCopy(newDoubleBoard));
+
+                  nextMoves.Add(doubleMove);
+                  int tripleX = x - i * 2;
+                  int tripleY = y - j * 2;
+                }
+
+                int tripleSumitoX = x - i * 2;
+                int tripleSumitoY = y - j * 2;
+                //3 marble sumito
+                if (inBounds(tripleSumitoX, tripleSumitoY, board) && board[tripleSumitoX, tripleSumitoY] == turnInt
+                && board[doubleSumitoX, doubleSumitoY] == turnInt
+                && sumito(x + i * 3, y + j * 3, board, turnInt, opponentInt)
+                && board[x + i * 2, y + j * 2] != turnInt)
+
+                {
+
                   int[,] newTripleBoard = new int[9, 9];
                   Array.Copy(board, 0, newTripleBoard, 0, board.Length);
 
                   newTripleBoard[nextX, nextY] = newTripleBoard[x, y];
-                  newTripleBoard[tripleX, tripleY] = 0;
-                  string triplemoves = "i-" + positionClassifier(tripleX, tripleY) + "-" + moveClassifier(i, j);
-
-
-
-                  nextMoves.Add(triplemoves);
-                  nextPossibleBoards.Add(newTripleBoard);
-
-                  currentState.addState(currentState.getNextTurnCopy(newTripleBoard));
-
-
-                }
-              }
-
-            }
-
-
-            //sumitos 
-            if (board[nextX, nextY] == opponentInt)
-            {
-
-              int doubleSumitoX = x - i;
-              int doubleSumitoY = y - j;
-              //2 marble sumito
-              if (inBounds(doubleSumitoX, doubleSumitoY, board) && board[doubleSumitoX, doubleSumitoY] == turnInt
-              && sumito(x + i * 2, y + j * 2, board, turnInt, opponentInt))
-              {
-                int[,] newDoubleBoard = new int[9, 9];
-                Array.Copy(board, 0, newDoubleBoard, 0, board.Length);
-
-                newDoubleBoard[nextX, nextY] = newDoubleBoard[x, y];
-                if (inBounds(x + i * 2, y + j * 2, board))
-                {
-                  newDoubleBoard[x + i * 2, y + j * 2] = opponentInt;
-                }
-                newDoubleBoard[doubleSumitoX, doubleSumitoY] = 0;
-                string doubleMove = "i-" + positionClassifier(doubleSumitoX, doubleSumitoY) + "-" + moveClassifier(i, j);
-
-
-                nextPossibleBoards.Add(newDoubleBoard);
-                currentState.addState(currentState.getNextTurnReduceCopy(newDoubleBoard));
-
-                nextMoves.Add(doubleMove);
-                int tripleX = x - i * 2;
-                int tripleY = y - j * 2;
-              }
-
-              int tripleSumitoX = x - i * 2;
-              int tripleSumitoY = y - j * 2;
-              //3 marble sumito
-              if (inBounds(tripleSumitoX, tripleSumitoY, board) && board[tripleSumitoX, tripleSumitoY] == turnInt
-              && board[doubleSumitoX, doubleSumitoY] == turnInt
-              && sumito(x + i * 3, y + j * 3, board, turnInt, opponentInt)
-              && board[x + i * 2, y + j * 2] != turnInt)
-
-              {
-
-                int[,] newTripleBoard = new int[9, 9];
-                Array.Copy(board, 0, newTripleBoard, 0, board.Length);
-
-                newTripleBoard[nextX, nextY] = newTripleBoard[x, y];
-                if (inBounds(x + (i * 2), y + (j * 2), board))
-                {
-                  newTripleBoard[x + i * 2, y + j * 2] = opponentInt;
-
-                  if (inBounds(x + (i * 3), y + (j * 3), board) && board[x + (i * 2), y + (j * 2)] == opponentInt)
+                  if (inBounds(x + (i * 2), y + (j * 2), board))
                   {
-                    newTripleBoard[x + i * 3, y + j * 3] = opponentInt;
-                  }
-                }
-                newTripleBoard[tripleSumitoX, tripleSumitoY] = 0;
-                string tripleSumito = "i-" + positionClassifier(tripleSumitoX, tripleSumitoY) + "-" + moveClassifier(i, j);
+                    newTripleBoard[x + i * 2, y + j * 2] = opponentInt;
 
-                nextPossibleBoards.Add(newTripleBoard);
-                currentState.addState(currentState.getNextTurnReduceCopy(newTripleBoard));
-                nextMoves.Add(tripleSumito);
-                int tripleX = x - i * 2;
-                int tripleY = y - j * 2;
+                    if (inBounds(x + (i * 3), y + (j * 3), board) && board[x + (i * 2), y + (j * 2)] == opponentInt)
+                    {
+                      newTripleBoard[x + i * 3, y + j * 3] = opponentInt;
+                    }
+                  }
+                  newTripleBoard[tripleSumitoX, tripleSumitoY] = 0;
+                  string tripleSumito = "i-" + positionClassifier(tripleSumitoX, tripleSumitoY) + "-" + moveClassifier(i, j);
+
+                  nextPossibleBoards.Add(newTripleBoard);
+                  currentState.addState(currentState.getNextTurnReduceCopy(newTripleBoard));
+                  nextMoves.Add(tripleSumito);
+                  int tripleX = x - i * 2;
+                  int tripleY = y - j * 2;
+                }
               }
             }
           }
         }
       }
+      return Tuple.Create(nextPossibleBoards, nextMoves);
     }
-    return Tuple.Create(nextPossibleBoards, nextMoves);
+    catch (IndexOutOfRangeException e)
+    {
+      Debug.Log(e);
+    }
+    return null;
+
   }
   /*
   static bool tripleSumitohelper(int x, int y,int[,] board, int turnInt, int opponentInt)

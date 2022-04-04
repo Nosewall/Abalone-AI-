@@ -269,6 +269,7 @@ public class Movement : MonoBehaviour
             gameManager.addLostPiece();
             consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
             push(direction, nodeList);
+            canPush = true;
           }
 
         }
@@ -282,6 +283,7 @@ public class Movement : MonoBehaviour
         if (numberToPush < pushPower)
         {
           push(direction, nodeList);
+          canPush = true;
         }
         else
         {
@@ -457,12 +459,12 @@ public class Movement : MonoBehaviour
         move(direction);
         abalone.updateUIBoard();
         InputScript.deselectAllTiles();
-        gameManager.cycleTurn();
-        return;
+
       }
       else
       {
         consoleManager.sendMessageToConsole("Tried to side step into a non-empty position. Invalid move.");
+        return;
       }
     }
     else
@@ -472,13 +474,16 @@ public class Movement : MonoBehaviour
         move(direction);
         abalone.updateUIBoard();
         InputScript.deselectAllTiles();
-        return;
       }
       else
       {
-        checkIfCanPush(direction, InputScript.selectedTiles.Count);
+        if (!checkIfCanPush(direction, InputScript.selectedTiles.Count))
+        {
+          return;
+        }
       }
     }
+    gameManager.cycleTurn();
 
   }
 
@@ -584,7 +589,6 @@ public class Movement : MonoBehaviour
     moveColumn(direction, nodeList);
     abalone.updateUIBoard();
     InputScript.deselectAllTiles();
-    gameManager.cycleTurn();
   }
 
 }
