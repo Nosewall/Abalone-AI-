@@ -89,6 +89,9 @@ public class Agent : MonoBehaviour
       firstTurn = false;
     }
 
+    numberOfOpponentTiles = getNumberOfColoredPieces(startState, opSide);
+    numberOfTiles = getNumberOfColoredPieces(startState, side);
+
     firstTurn = false;
     if (firstTurn)
     {

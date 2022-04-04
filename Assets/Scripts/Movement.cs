@@ -270,11 +270,15 @@ public class Movement : MonoBehaviour
             consoleManager.sendMessageToConsole("Trying to push " + numberToPush);
             push(direction, nodeList);
             canPush = true;
+            keepSearching = false;
           }
 
+        }if(keepSearching){
+          nodeList.Add(next);
+          next = getNextTileByDirection(direction, next);
         }
-        nodeList.Add(next);
-        next = getNextTileByDirection(direction, next);
+
+        
       }
       else if (next.getColor() == BoardColor.EMPTY)
       {
