@@ -102,7 +102,7 @@ public class Agent : MonoBehaviour
     else
     {
       Generator.generate(currentState);
-      toDepth(currentState, 2);
+      toDepth(currentState, 1);
       State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
       if (currentState.getBoard().Cast<int>().SequenceEqual(bestMove.getBoard().Cast<int>()))

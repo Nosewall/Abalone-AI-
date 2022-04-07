@@ -55,10 +55,12 @@ public class GameManager : MonoBehaviour
     if (gameOptions.isBlackAnAgent() && currentTurn == Turn.BLACK)
     {
       agentTurn();
+      updateBlackTimer();
     }
     if (gameOptions.isWhiteAnAgent() && currentTurn == Turn.WHITE)
     {
       agentTurn();
+      updateWhiteTimer();
     }
 
     updateTotalTimer();
@@ -91,24 +93,31 @@ public class GameManager : MonoBehaviour
 
   public void updateTotalTimer()
   {
-    totalMilisecondsPassed += Time.time - milisecondsSinceGameStarted;
+    totalMilisecondsPassed += Time.deltaTime;
     totalTimer.SetText(formatMiliseconds(totalMilisecondsPassed));
   }
 
   public void updateBlackTimer()
   {
-
-    blackTotalTime += Time.time - milisecondsSinceGameStarted - whiteTotalTime;
-    blacktimeUI.SetText(formatMiliseconds(blackTotalTime));
-
+    blackMilisecondsPassed += Time.deltaTime;
+    if (gameOptions.isBlackAnAgent())
+    {
+      blackMilisecondsPassed += 1;
+    }
+    blacktimeUI.SetText(formatMiliseconds(blackMilisecondsPassed));
+    blackTotalTime = blackMilisecondsPassed;
   }
 
   public void updateWhiteTimer()
   {
-    //whiteMilisecondsPassed += Time.deltaTime;
-    whiteTotalTime = Time.time - milisecondsSinceGameStarted - blackMilisecondsPassed;
-    whiteTimeUI.SetText(formatMiliseconds(whiteTotalTime));
 
+    whiteMilisecondsPassed += Time.deltaTime;
+    if (gameOptions.isWhiteAnAgent())
+    {
+      whiteMilisecondsPassed += 1;
+    }
+    whiteTimeUI.SetText(formatMiliseconds(whiteMilisecondsPassed));
+    whiteTotalTime = whiteMilisecondsPassed;
   }
 
   public string formatMiliseconds(float miliseconds)
