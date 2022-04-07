@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
   float blackMilisecondsPassed;
 
   float whiteMilisecondsPassed;
+  float milisecondsSinceGameStarted;
 
   float blackTotalTime;
   float whiteTotalTime;
@@ -49,15 +50,7 @@ public class GameManager : MonoBehaviour
   private void FixedUpdate()
   {
 
-    updateTotalTimer();
-    if (currentTurn == Turn.BLACK)
-    {
-      updateBlackTimer();
-    }
-    else
-    {
-      updateWhiteTimer();
-    }
+
 
     if (gameOptions.isBlackAnAgent() && currentTurn == Turn.BLACK)
     {
@@ -66,6 +59,17 @@ public class GameManager : MonoBehaviour
     if (gameOptions.isWhiteAnAgent() && currentTurn == Turn.WHITE)
     {
       agentTurn();
+    }
+
+    updateTotalTimer();
+
+    if (currentTurn == Turn.BLACK)
+    {
+      updateBlackTimer();
+    }
+    else
+    {
+      updateWhiteTimer();
     }
 
   }
@@ -87,22 +91,24 @@ public class GameManager : MonoBehaviour
 
   public void updateTotalTimer()
   {
-    totalMilisecondsPassed += Time.deltaTime;
+    totalMilisecondsPassed += Time.time - milisecondsSinceGameStarted;
     totalTimer.SetText(formatMiliseconds(totalMilisecondsPassed));
   }
 
   public void updateBlackTimer()
   {
-    blackMilisecondsPassed += Time.deltaTime;
-    blacktimeUI.SetText(formatMiliseconds(blackMilisecondsPassed));
-    blackTotalTime = blackMilisecondsPassed;
+
+    blackTotalTime += Time.time - milisecondsSinceGameStarted - whiteTotalTime;
+    blacktimeUI.SetText(formatMiliseconds(blackTotalTime));
+
   }
 
   public void updateWhiteTimer()
   {
-    whiteMilisecondsPassed += Time.deltaTime;
-    whiteTimeUI.SetText(formatMiliseconds(whiteMilisecondsPassed));
-    whiteTotalTime = whiteMilisecondsPassed;
+    //whiteMilisecondsPassed += Time.deltaTime;
+    whiteTotalTime = Time.time - milisecondsSinceGameStarted - blackMilisecondsPassed;
+    whiteTimeUI.SetText(formatMiliseconds(whiteTotalTime));
+
   }
 
   public string formatMiliseconds(float miliseconds)
@@ -163,6 +169,7 @@ public class GameManager : MonoBehaviour
     blackLostPieces = 0;
     whiteTotalTime = 0;
     blackTotalTime = 0;
+    milisecondsSinceGameStarted = Time.time;
     whiteTimeUI.SetText("00:00:00");
     blacktimeUI.SetText("00:00:00");
 

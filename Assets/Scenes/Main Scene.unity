@@ -22106,10 +22106,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a78848d2eae21ed4094eec7e542c6eb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boardBuilder: {fileID: 2049823257}
   consoleManager: {fileID: 2049823251}
   boardManager: {fileID: 2049823252}
   gameOptions: {fileID: 2049823250}
-  boardBuilder: {fileID: 2049823257}
   abalone: {fileID: 2049823256}
   whiteTurnsUI: {fileID: 175009681}
   blackTurnsUI: {fileID: 934332617}
@@ -22155,6 +22155,7 @@ MonoBehaviour:
   boardBuilder: {fileID: 2049823257}
   consoleManager: {fileID: 2049823251}
   boardManager: {fileID: 2049823252}
+  gameManager: {fileID: 2049823254}
 --- !u!114 &2049823257
 MonoBehaviour:
   m_ObjectHideFlags: 0
