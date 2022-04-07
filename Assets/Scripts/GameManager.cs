@@ -168,6 +168,8 @@ public class GameManager : MonoBehaviour
     {
       whiteTurnsUI.SetText(gameOptions.getTurnLimit().ToString());
       blackTurnsUI.SetText(gameOptions.getTurnLimit().ToString());
+      blackTurnsLeft = gameOptions.getTurnLimit();
+      whiteTurnsLeft = gameOptions.getTurnLimit();
     }
     totalMilisecondsPassed = 0;
     blackMilisecondsPassed = 0;
@@ -181,9 +183,6 @@ public class GameManager : MonoBehaviour
     milisecondsSinceGameStarted = Time.time;
     whiteTimeUI.SetText("00:00:00");
     blacktimeUI.SetText("00:00:00");
-
-
-
 
   }
 
