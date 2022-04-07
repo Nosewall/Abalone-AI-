@@ -8,6 +8,7 @@ using System.Linq;
 public class Agent : MonoBehaviour
 {
   Hashtable transpoTable;
+  public ConsoleManager consoleManager;
 
 
   public static int[,] positionValues =  {
@@ -53,7 +54,8 @@ public class Agent : MonoBehaviour
     //!!!REMOVE AFTER TESTING
     firstTurn = false;
 
-    
+    numberOfOpponentTiles = getNumberOfColoredPieces(startState, opSide);
+    numberOfTiles = getNumberOfColoredPieces(startState, side);
   }
 
   public void setState(State s)
@@ -73,6 +75,7 @@ public class Agent : MonoBehaviour
   }
   public State turn(State startState)
   {
+    numberOfCombinationsChecked = 0;
     currentState = startState;
     printBoard(currentState.getBoard());
     if (startState.getTurn() == 1)
@@ -88,6 +91,8 @@ public class Agent : MonoBehaviour
       firstTurn = false;
     }
 
+    numberOfOpponentTiles = getNumberOfColoredPieces(startState, opSide);
+    numberOfTiles = getNumberOfColoredPieces(startState, side);
 
     firstTurn = false;
     if (firstTurn)
@@ -97,15 +102,18 @@ public class Agent : MonoBehaviour
     else
     {
       Generator.generate(currentState);
-      toDepth(currentState, 1);
+      toDepth(currentState, 2);
       State bestMove = AlphaBeta(currentState);
       printBoard(bestMove.getBoard());
       if (currentState.getBoard().Cast<int>().SequenceEqual(bestMove.getBoard().Cast<int>()))
       {
+        consoleManager.sendMessageToConsole("Using first state at random.");
+        consoleManager.sendMessageToConsole("Combinations checked " + numberOfCombinationsChecked);
         return currentState.getNextStates()[0];
       }
+      consoleManager.sendMessageToConsole("Combinations checked " + numberOfCombinationsChecked);
+      consoleManager.sendMessageToConsole("Combinations checked" + bestMove.getValue());
       return bestMove;
-
     }
 
   }
@@ -278,7 +286,6 @@ public class Agent : MonoBehaviour
   //New evaluation function that checks for pushing pieces off, and saving their own pieces
   private int evaluate(State state)
   {
-
     int newNumberOfOpponentsPieces = getNumberOfColoredPieces(state, opSide);
     int newNumberOfColoredPieces = getNumberOfColoredPieces(state, side);
     int sum = 0;
