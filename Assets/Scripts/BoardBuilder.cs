@@ -98,7 +98,7 @@ public class BoardBuilder : MonoBehaviour
         }
 
         //SE Neighbor
-        if ((y + 1 < 9 && x + 1 < 9) && !abalone.isNodeNull(x, y + 1))
+        if ((y + 1 < 9) && !abalone.isNodeNull(x, y + 1))
         {
           node.getNeighbors()[3] = (abalone.getNode(x, y + 1));
         }
