@@ -53,7 +53,8 @@ public class Agent : MonoBehaviour
     //!!!REMOVE AFTER TESTING
     firstTurn = false;
 
-    
+    numberOfOpponentTiles = getNumberOfColoredPieces(startState, opSide);
+    numberOfTiles = getNumberOfColoredPieces(startState, side);
   }
 
   public void setState(State s)
@@ -88,6 +89,8 @@ public class Agent : MonoBehaviour
       firstTurn = false;
     }
 
+    numberOfOpponentTiles = getNumberOfColoredPieces(startState, opSide);
+    numberOfTiles = getNumberOfColoredPieces(startState, side);
 
     firstTurn = false;
     if (firstTurn)
@@ -278,7 +281,6 @@ public class Agent : MonoBehaviour
   //New evaluation function that checks for pushing pieces off, and saving their own pieces
   private int evaluate(State state)
   {
-
     int newNumberOfOpponentsPieces = getNumberOfColoredPieces(state, opSide);
     int newNumberOfColoredPieces = getNumberOfColoredPieces(state, side);
     int sum = 0;
